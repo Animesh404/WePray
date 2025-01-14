@@ -10,6 +10,8 @@ class PrayerModel {
                 email VARCHAR(255),
                 phone VARCHAR(20),
                 message TEXT NOT NULL,
+                category VARCHAR(255),
+                country VARCHAR(255),
                 status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
                 visibility BOOL DEFAULT True,
                 type ENUM('prayer', 'praise') DEFAULT 'prayer',
@@ -33,7 +35,7 @@ class PrayerModel {
     }
 
     static async create(prayerData) {
-        const { name, email, user_id, phone, message, is_anonymous, visibility,
+        const { name, country, email, user_id, phone, category, message, is_anonymous, visibility,
             type } = prayerData;
         
         try {
@@ -41,8 +43,8 @@ class PrayerModel {
             const processedUserId = is_anonymous ? null : user_id;
             
             const [result] = await pool.query(
-                'INSERT INTO prayers (name, user_id, email, phone, message, visibility, type) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                [name, processedUserId, email, phone, message, visibility, type]
+                'INSERT INTO prayers (name, user_id, country, email, phone, message, category, visibility, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                [name, processedUserId, country, email, phone, message, category, visibility, type]
             );
     
             return { 

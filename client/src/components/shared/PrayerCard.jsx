@@ -18,6 +18,8 @@ import {
 
 const PrayerCard = ({ 
   userName,
+  country,
+  category,
   content,
   createdAt,
   prayerCount: initialPrayerCount,
@@ -107,7 +109,7 @@ const PrayerCard = ({
     setLogoError(true);
     console.warn('Failed to load logo image:', logoUrl);
   };
-
+  // console.log(category);
   return (
     <div className="w-full rounded-lg border border-gray-200 gap-2 bg-white shadow-md relative">
       {/* Header */}
@@ -125,7 +127,20 @@ const PrayerCard = ({
 
       {/* Content */}
       <div className="p-4">
-        <h3 className="font-medium mb-2">{userName}</h3>
+        <div className='flex flex-row  items-center justify-between'>
+        {(country) ? (
+          <div className="flex flex-row items-center gap-2 mb-2">
+          <h3 className="font-medium mb-2">{userName}</h3>
+          <h3 className="font-light mb-2">({country})</h3>
+          </div>
+        ) : (
+          <h3 className="font-medium mb-2">{userName}</h3>
+        )}
+        {(category && category.trim().length > 0) && (
+          <span className='px-2 inline-flex text-xs leading-5 h-6 font-semibold rounded-full bg-green-100 text-green-800'> {category}</span>
+        )}
+        </div>
+        
         <p className={`text-sm text-gray-700 ${!expanded && 'line-clamp-2'}`}>
           {content}
         </p>
@@ -222,6 +237,8 @@ const PrayerCard = ({
 
 PrayerCard.propTypes = {
   userName: PropTypes.string,
+  country: PropTypes.string,
+  category: PropTypes.string,
   content: PropTypes.string.isRequired,
   createdAt: PropTypes.string.isRequired,
   prayerCount: PropTypes.number.isRequired,
