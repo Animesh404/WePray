@@ -21,6 +21,8 @@ const PrayerWall = () => {
   });
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [warning, setWarning] = useState(false);
+  const [warningMessage, setWarningMessage] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [prayers, setPrayers] = useState([]);
   const [page, setPage] = useState(1);
@@ -109,6 +111,11 @@ const PrayerWall = () => {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (prayerForm.name.trim() && !prayerForm.country.trim()) {
+      setWarning(true);
+      setWarningMessage("Please select your country");
+      return;
+    }
     try {
       const submissionData = {
         ...prayerForm,
@@ -147,6 +154,7 @@ const PrayerWall = () => {
         });
         setSuccess(true);
         setError(null);
+        setWarning(false);
         setShowForm(false);
         console.log("admin was notified");
         setTimeout(() => setSuccess(false), 3000);
@@ -159,6 +167,7 @@ const PrayerWall = () => {
         });
         setSuccess(true);
         setError(null);
+        setWarning(false);
         setShowForm(false);
 
         setTimeout(() => setSuccess(false), 3000);
@@ -213,6 +222,11 @@ const PrayerWall = () => {
         {success && (
           <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
             Prayer request submitted successfully!
+          </div>
+        )}
+        {warning && (
+          <div className="bg-orange-100 border border-orange-400 text-orange-700 px-4 py-3 rounded mb-4">
+            {warningMessage}
           </div>
         )}
 
@@ -283,43 +297,222 @@ const PrayerWall = () => {
                 />
               </div>
               <div>
-            <label htmlFor="country" className="block text-sm font-medium text-gray-700">
-              Your Country
-            </label>
-            <select
-              id="country"
-              name="country"
-              value={prayerForm.country}
-              onChange={handleChange}
-              className="mt-1 py-1 px-1 block w-full rounded-md bg-white border-2 border-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            >
-              <option value="">Select your country</option>
-              {[
-                "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", 
-                "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", 
-                "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", 
-                "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica", 
-                "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", 
-                "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon", 
-                "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", 
-                "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", 
-                "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", 
-                "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", 
-                "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", 
-                "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", 
-                "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", 
-                "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", 
-                "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", 
-                "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", 
-                "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", 
-                "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", 
-                "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", 
-                "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
-              ].map((country) => (
-                <option key={country} value={country}>{country}</option>
-              ))}
-            </select>
-          </div>
+                <label
+                  htmlFor="country"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Your Country
+                </label>
+                <select
+                  id="country"
+                  name="country"
+                  value={prayerForm.country}
+                  onChange={handleChange}
+                  className="mt-1 py-1 px-1 block w-full rounded-md bg-white border-2 border-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                >
+                  <option value="">Select your country</option>
+                  {[
+                    "Afghanistan",
+                    "Albania",
+                    "Algeria",
+                    "Andorra",
+                    "Angola",
+                    "Antigua and Barbuda",
+                    "Argentina",
+                    "Armenia",
+                    "Australia",
+                    "Austria",
+                    "Azerbaijan",
+                    "Bahamas",
+                    "Bahrain",
+                    "Bangladesh",
+                    "Barbados",
+                    "Belarus",
+                    "Belgium",
+                    "Belize",
+                    "Benin",
+                    "Bhutan",
+                    "Bolivia",
+                    "Bosnia and Herzegovina",
+                    "Botswana",
+                    "Brazil",
+                    "Brunei",
+                    "Bulgaria",
+                    "Burkina Faso",
+                    "Burundi",
+                    "Cabo Verde",
+                    "Cambodia",
+                    "Cameroon",
+                    "Canada",
+                    "Central African Republic",
+                    "Chad",
+                    "Chile",
+                    "China",
+                    "Colombia",
+                    "Comoros",
+                    "Congo",
+                    "Costa Rica",
+                    "Croatia",
+                    "Cuba",
+                    "Cyprus",
+                    "Czech Republic",
+                    "Denmark",
+                    "Djibouti",
+                    "Dominica",
+                    "Dominican Republic",
+                    "Ecuador",
+                    "Egypt",
+                    "El Salvador",
+                    "Equatorial Guinea",
+                    "Eritrea",
+                    "Estonia",
+                    "Eswatini",
+                    "Ethiopia",
+                    "Fiji",
+                    "Finland",
+                    "France",
+                    "Gabon",
+                    "Gambia",
+                    "Georgia",
+                    "Germany",
+                    "Ghana",
+                    "Greece",
+                    "Grenada",
+                    "Guatemala",
+                    "Guinea",
+                    "Guinea-Bissau",
+                    "Guyana",
+                    "Haiti",
+                    "Honduras",
+                    "Hungary",
+                    "Iceland",
+                    "India",
+                    "Indonesia",
+                    "Iran",
+                    "Iraq",
+                    "Ireland",
+                    "Israel",
+                    "Italy",
+                    "Jamaica",
+                    "Japan",
+                    "Jordan",
+                    "Kazakhstan",
+                    "Kenya",
+                    "Kiribati",
+                    "Kuwait",
+                    "Kyrgyzstan",
+                    "Laos",
+                    "Latvia",
+                    "Lebanon",
+                    "Lesotho",
+                    "Liberia",
+                    "Libya",
+                    "Liechtenstein",
+                    "Lithuania",
+                    "Luxembourg",
+                    "Madagascar",
+                    "Malawi",
+                    "Malaysia",
+                    "Maldives",
+                    "Mali",
+                    "Malta",
+                    "Marshall Islands",
+                    "Mauritania",
+                    "Mauritius",
+                    "Mexico",
+                    "Micronesia",
+                    "Moldova",
+                    "Monaco",
+                    "Mongolia",
+                    "Montenegro",
+                    "Morocco",
+                    "Mozambique",
+                    "Myanmar",
+                    "Namibia",
+                    "Nauru",
+                    "Nepal",
+                    "Netherlands",
+                    "New Zealand",
+                    "Nicaragua",
+                    "Niger",
+                    "Nigeria",
+                    "North Korea",
+                    "North Macedonia",
+                    "Norway",
+                    "Oman",
+                    "Pakistan",
+                    "Palau",
+                    "Palestine",
+                    "Panama",
+                    "Papua New Guinea",
+                    "Paraguay",
+                    "Peru",
+                    "Philippines",
+                    "Poland",
+                    "Portugal",
+                    "Qatar",
+                    "Romania",
+                    "Russia",
+                    "Rwanda",
+                    "Saint Kitts and Nevis",
+                    "Saint Lucia",
+                    "Saint Vincent and the Grenadines",
+                    "Samoa",
+                    "San Marino",
+                    "Sao Tome and Principe",
+                    "Saudi Arabia",
+                    "Senegal",
+                    "Serbia",
+                    "Seychelles",
+                    "Sierra Leone",
+                    "Singapore",
+                    "Slovakia",
+                    "Slovenia",
+                    "Solomon Islands",
+                    "Somalia",
+                    "South Africa",
+                    "South Korea",
+                    "South Sudan",
+                    "Spain",
+                    "Sri Lanka",
+                    "Sudan",
+                    "Suriname",
+                    "Sweden",
+                    "Switzerland",
+                    "Syria",
+                    "Taiwan",
+                    "Tajikistan",
+                    "Tanzania",
+                    "Thailand",
+                    "Timor-Leste",
+                    "Togo",
+                    "Tonga",
+                    "Trinidad and Tobago",
+                    "Tunisia",
+                    "Turkey",
+                    "Turkmenistan",
+                    "Tuvalu",
+                    "Uganda",
+                    "Ukraine",
+                    "United Arab Emirates",
+                    "United Kingdom",
+                    "United States",
+                    "Uruguay",
+                    "Uzbekistan",
+                    "Vanuatu",
+                    "Vatican City",
+                    "Venezuela",
+                    "Vietnam",
+                    "Yemen",
+                    "Zambia",
+                    "Zimbabwe",
+                  ].map((country) => (
+                    <option key={country} value={country}>
+                      {country}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               <div>
                 <label
