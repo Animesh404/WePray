@@ -210,7 +210,7 @@ const PrayerWall = () => {
   return (
     <>
       <Navbar />
-      <div className="max-w-4xl mt-16 mx-auto p-2">
+      <div className="max-w-4xl mt-16 2xl:mt-24 mx-auto p-2">
         {/* <h1 className="text-3xl font-bold mb-6">Share Your Prayer Request</h1> */}
 
         {error && (
