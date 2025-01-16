@@ -433,7 +433,7 @@ h1 {
 
 .swiper {
   width: 70%;
-  height: 380px;
+  height: auto;
   padding: 2rem 0;
   margin: 2rem 0;
 }
@@ -1275,4 +1275,165 @@ textarea {
   }
 
  
+}
+
+/* Large Screen Responsive Styles (>1440px) */
+@media screen and (min-width: 1440px) {
+  /* Container width control */
+  .hero-section,
+  .about-section,
+  .tv-section,
+  .how-section,
+  .event-section,
+  .testimonial-section {
+    max-width: 1440px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Hero section adjustments */
+  .hero-left h1 {
+    font-size: 3.5rem !important;
+  }
+
+  .hero-left p {
+    font-size: 1.8rem;
+  }
+
+  .number {
+    width: 250px;
+    padding: 2rem;
+  }
+
+  /* TV section scaling */
+  .show-container iframe {
+    width: 600px;
+    height: 300px;
+  }
+
+  /* How section improvements */
+  .how-section img {
+    max-width: 600px;
+  }
+
+  .how-left {
+    width: 45%;
+  }
+
+  .how-left h1 {
+    font-size: 2.8rem !important;
+  }
+
+  .how-left p {
+    font-size: 1.8rem !important;
+  }
+
+  /* Testimonial section */
+  .swiper {
+    width: 80%;
+    max-width: 1200px;
+  }
+
+  .card-test {
+    width: 90%;
+    max-width: 1000px;
+    padding: 3rem;
+  }
+
+  .card-test p {
+    font-size: 1.4rem;
+    line-height: 1.6;
+  }
+
+  /* Navigation */
+  .nav {
+    padding: 1rem 4rem;
+  }
+
+  .nav ul a {
+    font-size: 1.1rem;
+    padding: 8px 16px;
+  }
+
+  .cta {
+    width: 200px;
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+  }
+
+  /* About section */
+  .about-section p {
+    font-size: 1.2rem;
+    line-height: 1.6;
+  }
+
+  /* Circle backgrounds */
+  .circle {
+    width: 500px;
+    height: 500px;
+    left: -30%;
+  }
+
+  .circle2 {
+    width: 500px !important;
+    height: 500px !important;
+  }
+
+  /* Footer scaling */
+  .footer {
+    padding: 6rem 20rem;
+  }
+
+  .col1 {
+    width: 35%;
+  }
+
+  .footer b {
+    font-size: 1.5rem;
+  }
+
+  .footer p,
+  .footer a {
+    font-size: 1.1rem;
+  }
+}
+
+/* Extra Large Screens (>1800px) */
+@media screen and (min-width: 1800px) {
+  .hero-section,
+  .about-section,
+  .tv-section,
+  .how-section,
+  .event-section,
+  .testimonial-section{
+    max-width: 1800px;
+  }
+
+  .hero-left h1 {
+    font-size: 4rem !important;
+  }
+
+  .hero-left p {
+    font-size: 1.4rem;
+  }
+
+  .number {
+    width: 300px;
+    padding: 2.5rem;
+  }
+
+  .show-container iframe {
+    width: 700px;
+    height: 350px;
+  }
+
+  .nav {
+    padding: 1.5rem 20rem;
+  }
+
+  .cta {
+    width: 220px;
+    padding: 1.2rem 1.8rem;
+    font-size: 1.2rem;
+  }
 }
