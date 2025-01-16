@@ -51,20 +51,16 @@ const Home = () => {
 
   const testimonials = [
     {
-      name: "John Deo",
-      image: "https://img.freepik.com/free-photo/portrait-man-laughing_23-2148859448.jpg?size=338&ext=jpg&ga=GA1.1.1880011253.1728864000&semt=ais_hybrid-rr-similar",
-      text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat..."
+      name: "Veronica Johnsen",
+      image: "https://media.istockphoto.com/id/1223671392/vector/default-profile-picture-avatar-photo-placeholder-vector-illustration.jpg?s=612x612&w=0&k=20&c=s0aTdmT5aU6b8ot7VKm11DeID6NctRCpB755rA1BIP0=",
+      text: "I praise God for this Last Generation of youth. I praise Him for their energy, creativity, but most of all that they love God. I praise Him for the work this Last Generation is doing in the fields ripe for the picking. It was the past generations that sowed, now this Last Generation is finishing the harvest. I praise God for this Last Generation! Soon we will be gathered together celebrating Christs victory for our souls. I praise God for Wipray too! What wonderful vision God gives each generation but this Last Generation excels them all."
     },
     {
-      name: "John Deo",
-      image: "https://img.freepik.com/free-photo/portrait-man-laughing_23-2148859448.jpg?size=338&ext=jpg&ga=GA1.1.1880011253.1728864000&semt=ais_hybrid-rr-similar",
-      text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat..."
+      name: "C G",
+      image: "https://media.istockphoto.com/id/1223671392/vector/default-profile-picture-avatar-photo-placeholder-vector-illustration.jpg?s=612x612&w=0&k=20&c=s0aTdmT5aU6b8ot7VKm11DeID6NctRCpB755rA1BIP0=",
+      text: "Praising God for WiPray! Beautiful idea that will reap rewards, giving all glory to God!"
     },
-    {
-      name: "John Deo",
-      image: "https://img.freepik.com/free-photo/portrait-man-laughing_23-2148859448.jpg?size=338&ext=jpg&ga=GA1.1.1880011253.1728864000&semt=ais_hybrid-rr-similar",
-      text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat..."
-    },
+    
   ];
 
 
@@ -184,7 +180,7 @@ const Home = () => {
         <div className="circle2"></div>
       </div>
 
-      <div className="event-section">
+      {/* <div className="event-section">
         <h1>UPCOMING PRAYER CALLS</h1>
         {[...Array(4)].map((_, index) => (
           <div className="event-item" key={index} data-cursor-img="https://cf1.gatewaypeople.com/production/fae/image/asset/6441/gatewayworship_webbanner.jpg">
@@ -197,7 +193,7 @@ const Home = () => {
             </div>
           </div>
         ))}
-      </div>
+      </div> */}
 
       <div className="testimonial-section">
         <h1 className="title">TESTIMONIALS</h1>
