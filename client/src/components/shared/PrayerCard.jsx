@@ -136,9 +136,9 @@ const PrayerCard = ({
         ) : (
           <h3 className="font-medium mb-2">{userName}</h3>
         )}
-        {(category && category.trim().length > 0) && (
+        {/* {(category && category.trim().length > 0) && (
           <span className='px-2 inline-flex text-xs leading-5 h-6 font-semibold rounded-full bg-green-100 text-green-800'> {category}</span>
-        )}
+        )} */}
         </div>
         
         <p className={`text-sm text-gray-700 ${!expanded && 'line-clamp-2'}`}>

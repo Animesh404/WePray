@@ -550,7 +550,7 @@ const PrayerWall = () => {
                 />
               </div>
 
-              <div>
+              {/* <div>
                 <label
                   htmlFor="category"
                   className="block text-sm font-medium text-gray-700"
@@ -566,7 +566,7 @@ const PrayerWall = () => {
                   required
                   className="mt-1 block py-1 px-1 w-full bg-white rounded-md border-2 border-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                 />
-              </div>
+              </div> */}
               <div>
                 <label
                   htmlFor="message"
