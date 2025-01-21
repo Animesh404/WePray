@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import PrayerCardHeader from "./PrayerCardHeader";
 import { useNavigate } from "react-router-dom";
@@ -51,7 +51,8 @@ const PrayerCard = ({
   const [prayerCount, setPrayerCount] = useState(initialPrayerCount);
   const [isPrayed, setIsPrayed] = useState(false);
   const [logoError, setLogoError] = useState(false);
-  const shouldShowMore = content.length > 100;
+  const [shouldShowMore, setShouldShowMore] = useState(false);
+  const contentRef = useRef(null);
   // const [reported, setReported] = useState(false);
   // console.log(categories);
 
@@ -123,6 +124,20 @@ const PrayerCard = ({
     setLogoError(true);
     console.warn("Failed to load logo image:", logoUrl);
   };
+
+  useEffect(() => {
+    const checkOverflow = () => {
+      if (contentRef.current) {
+        const isOverflowing =
+          contentRef.current.scrollHeight > contentRef.current.clientHeight;
+        setShouldShowMore(isOverflowing);
+      }
+    };
+
+    checkOverflow();
+    window.addEventListener("resize", checkOverflow);
+    return () => window.removeEventListener("resize", checkOverflow);
+  }, [content]);
   // console.log(category);
   return (
     <div className="w-full rounded-lg border border-gray-200 gap-2 bg-white shadow-md relative">
@@ -148,19 +163,11 @@ const PrayerCard = ({
         />
 
         <p
-          className={`text-sm p-2 text-gray-700 ${
-            !expanded && shouldShowMore ? "line-clamp-2" : ""
+          className={`text-sm px-2 text-gray-700 ${
+            !expanded && "line-clamp-2"
           }`}
         >
-          {content}{" "}
-          {shouldShowMore && !expanded && (
-            <span
-              onClick={() => setExpanded(true)}
-              className="font-medium text-xs cursor-pointer"
-            >
-              ...more
-            </span>
-          )}
+          {content}
         </p>
 
         {type === "prayer" && (
