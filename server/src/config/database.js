@@ -4,6 +4,7 @@ const MySQLStore = require('express-mysql-session')(session);
 
 const urlDB = process.env.MYSQL_URL;
 
+const app = express();
 // Initialize session store using the URL directly
 const sessionStore = new MySQLStore({}, urlDB);
 
