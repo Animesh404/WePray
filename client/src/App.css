@@ -630,6 +630,11 @@ td[data-label="Actions"] button {
 .nav .mobile-menu, .nav-drawer {
   display: none;
 }
+.modal-content {
+  width: 60% !important;
+  margin: 1rem;
+  padding: 1rem;
+}
 
 /* Mobile Responsive */
 @media screen and (max-width: 768px) {
@@ -1207,11 +1212,11 @@ textarea {
     min-width: 800px;
   }
 
-  .modal-content {
+  /* .modal-content {
     width: 90% !important;
     margin: 1rem;
     padding: 1rem;
-  }
+  } */
 }
 
 /* Add these styles for responsive tables */

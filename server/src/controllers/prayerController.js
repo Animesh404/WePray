@@ -5,7 +5,8 @@ class PrayerController {
         try {
             const prayerData = {
                 ...(req.user ? { user_id: req.user.id } : {}),
-                ...req.body
+                ...req.body,
+                categories: req.body.categories || [] 
             };
  
             const prayer = await PrayerModel.create(prayerData);
@@ -26,27 +27,26 @@ class PrayerController {
             console.log('=== GetAll Controller Start ===');
             const page = parseInt(req.query.page) || 1;
             const limit = parseInt(req.query.limit) || 10;
-    
-            // console.log('Request user at controller start:', req.user);
-            // console.log('Full request headers:', req.headers);
             
             const userId = req.user?.id;
-            // console.log('Extracted userId:', userId);
-            
             const isAdmin = req.user?.role === 'admin';
             const isCoordinator = req.user?.role === 'coordinator';
-            // console.log('User role checks:', { isAdmin, isCoordinator });
     
             const filters = {};
+            
+            // Handle user filter
             if (!isAdmin && !isCoordinator && userId) {
                 filters.user_id = userId;
-                // console.log('Applied user filter:', filters);
+            }
+
+            // Handle category filter
+            if (req.query.categories) {
+                filters.categories = Array.isArray(req.query.categories) 
+                    ? req.query.categories 
+                    : [req.query.categories];
             }
     
-            // console.log('Final filters before database query:', filters);
             const {prayers, total} = await PrayerModel.getAll(page, limit, filters);
-            // console.log('Query completed. Total prayers:', total);
-            // console.log('=== GetAll Controller End ===');
     
             res.json({
                 success: true,
@@ -63,11 +63,16 @@ class PrayerController {
             });
         }
     }
-   static async getAllApprovedPrayers(req, res) {
+    static async getAllApprovedPrayers(req, res) {
         try {
             const page = parseInt(req.query.page) || 1;
             const limit = parseInt(req.query.limit) || 10;
-            const {prayers, total} = await PrayerModel.getAllApprovedPrayers(page, limit);
+            const categories = req.query.categories ? 
+                (Array.isArray(req.query.categories) ? req.query.categories : [req.query.categories]) 
+                : null;
+            // console.log(categories);
+                
+            const {prayers, total} = await PrayerModel.getAllApprovedPrayers(page, limit, categories);
             
             res.json({
                 success: true,
@@ -86,10 +91,13 @@ class PrayerController {
 
     static async getAllApprovedPraises(req, res) {
         try {
-
             const page = parseInt(req.query.page) || 1;
             const limit = parseInt(req.query.limit) || 10;
-            const {prayers, total} = await PrayerModel.getAllApprovedPraises(page, limit);
+            const categories = req.query.categories ? 
+                (Array.isArray(req.query.categories) ? req.query.categories : [req.query.categories]) 
+                : null;
+                
+            const {prayers, total} = await PrayerModel.getAllApprovedPraises(page, limit, categories);
             
             res.json({
                 success: true,
@@ -131,7 +139,7 @@ class PrayerController {
 
    static async updateMessage(req, res) {
     try {
-        const { message } = req.body;
+        const { message, categories } = req.body;
         
         if (!message) {
             return res.status(400).json({
@@ -140,6 +148,7 @@ class PrayerController {
             });
         }
 
+        // Update message
         const updatedPrayer = await PrayerModel.updateMessage(req.params.id, message);
         
         if (!updatedPrayer) {
@@ -149,10 +158,47 @@ class PrayerController {
             });
         }
 
+        // Update categories if provided
+        if (categories) {
+            await PrayerModel.updateCategories(req.params.id, categories);
+        }
+
         res.json({
             success: true,
-            data: updatedPrayer,
-            message: 'Prayer message updated successfully'
+            message: 'Prayer updated successfully'
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+}
+
+// Add new method to update categories
+static async updateCategories(req, res) {
+    try {
+        const { categories } = req.body;
+        
+        if (!Array.isArray(categories)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Categories must be an array'
+            });
+        }
+
+        const updated = await PrayerModel.updateCategories(req.params.id, categories);
+        
+        if (!updated) {
+            return res.status(404).json({
+                success: false,
+                message: 'Prayer request not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            message: 'Categories updated successfully'
         });
     } catch (error) {
         res.status(500).json({

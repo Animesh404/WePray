@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from "react";
 import Navbar from "../components/Navbar";
 import api from "../utils/axios";
 import PrayerCard from "../components/shared/PrayerCard";
+import CategorySelector from "../components/shared/CategorySelector";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { subscribeToMailchimp } from "../utils/emailSubscribe";
 import AuthChoiceModal from "../components/AuthChoiceModal";
 
 const PrayerWall = () => {
@@ -14,7 +16,7 @@ const PrayerWall = () => {
     message: "",
     name: "",
     country: "",
-    category: "",
+    categories: [],
     visibility: visibility,
     type: "prayer",
     is_anonymous: false,
@@ -27,8 +29,15 @@ const PrayerWall = () => {
   const [prayers, setPrayers] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [showFilter, setShowFilter] = useState(false);
   const { user } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [mailchimpOptions, setMailchimpOptions] = useState({
+    wantEncouragement: false,
+    wantUpdates: false,
+  });
+  const [emailError, setEmailError] = useState("");
+  const [selectedCategories, setSelectedCategories] = useState([]);
   const containerRef = useRef(null);
 
   const [hasMore, setHasMore] = useState(true);
@@ -38,14 +47,17 @@ const PrayerWall = () => {
     try {
       setLoading(true);
       setError(null);
-
+      // console.log(selectedCategories);
       const prayersRes = await api.get("/prayers/approvedPrayers", {
-        params: { page, limit: 10 },
+        params: { page, limit: 10, categories: selectedCategories },
       });
 
       const fetchedPrayers = prayersRes.data?.data?.prayers || [];
-      console.log(fetchedPrayers);
+      // console.log(fetchedPrayers);
 
+      if (selectedCategories && selectedCategories.length > 0) {
+        setPrayers(fetchedPrayers);
+      }
       setPrayers((prevPrayers) => {
         const newPrayers = fetchedPrayers.filter(
           (newPrayer) =>
@@ -57,7 +69,9 @@ const PrayerWall = () => {
       });
 
       // If fewer prayers are returned than the limit, we've fetched all pages
-      if (fetchedPrayers.length < 10) setHasMore(false);
+      if (selectedCategories.length === 0 && fetchedPrayers.length < 10)
+        setHasMore(false);
+      // console.log(prayers);
     } catch (error) {
       console.error("Error fetching prayers:", error);
       setError("Failed to fetch prayers.");
@@ -70,6 +84,13 @@ const PrayerWall = () => {
     if (hasMore) fetchPrayers();
   }, [page]);
 
+  useEffect(() => {
+    fetchPrayers();
+  }, [selectedCategories]);
+
+  useEffect(() => {
+    if (selectedCategories && selectedCategories.length > 0) fetchPrayers();
+  }, [selectedCategories]);
   const handleScroll = (e) => {
     const { scrollTop, scrollHeight, clientHeight } = e.target.documentElement;
     if (scrollHeight - scrollTop <= clientHeight + 100 && !loading && hasMore) {
@@ -105,18 +126,57 @@ const PrayerWall = () => {
   //   }
   // };
 
+  const handleMailchimpOptionChange = (e) => {
+    const { name, checked } = e.target;
+    setMailchimpOptions((prev) => ({
+      ...prev,
+      [name]: checked,
+    }));
+  };
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleContinueAsGuest = () => {
     setShowAuthModal(false);
     setShowForm(true);
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const needsEmail =
+      mailchimpOptions.wantEncouragement || mailchimpOptions.wantUpdates;
+    // console.log("categories: ",prayerForm.categories);
+    if (needsEmail && !prayerForm.email) {
+      setEmailError(
+        "Email is required when subscribing to updates or encouragement notes"
+      );
+      return;
+    }
+
+    if (needsEmail && !validateEmail(prayerForm.email)) {
+      setEmailError("Please enter a valid email address");
+      return;
+    }
     if (prayerForm.name.trim() && !prayerForm.country.trim()) {
       setWarning(true);
       setWarningMessage("Please select your country");
       return;
     }
     try {
+      if (needsEmail) {
+        try {
+          await subscribeToMailchimp(
+            prayerForm.email,
+            mailchimpOptions.wantEncouragement,
+            mailchimpOptions.wantUpdates
+          );
+        } catch (error) {
+          setEmailError(error.message);
+          return;
+        }
+      }
       const submissionData = {
         ...prayerForm,
         is_anonymous: !prayerForm.name,
@@ -124,14 +184,13 @@ const PrayerWall = () => {
         visibility: visibility,
         type: "prayer",
       };
-      // console.log(submissionData);
       if (!user) {
         await api.post("/prayers", submissionData);
       } else {
         await api.post("/prayers/authUser", submissionData);
       }
 
-      console.log("Auth user", user);
+      // console.log("Auth user", user);
 
       const netlifyData = new FormData();
       netlifyData.append("name", prayerForm.name || "Anonymous");
@@ -151,6 +210,7 @@ const PrayerWall = () => {
           message: "",
           name: "",
           is_anonymous: false,
+          categories: [],
         });
         setSuccess(true);
         setError(null);
@@ -164,6 +224,7 @@ const PrayerWall = () => {
           message: "",
           name: "",
           is_anonymous: false,
+          categories: [],
         });
         setSuccess(true);
         setError(null);
@@ -232,22 +293,39 @@ const PrayerWall = () => {
 
         {!showForm ? (
           <div className="flex flex-col w-full py-4">
-            <div className="flex flex-row">
-              <button
-                onClick={handlePrayerButtonClick}
-                className="px-3 py-1 py-2 px-4 w-50 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#409F9C] hover:bg-[#368B88] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#409F9C]"
-              >
-                Submit a Prayer
-              </button>
-              <button
-                onClick={() => navigate("/praiseWall")}
-                className="px-3 py-1 py-2 px-4 w-50 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#409F9C] hover:bg-[#368B88] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#409F9C]"
-              >
-                Praises
-              </button>
+            <div className="flex flex-row justify-between items-center">
+              <div className="flex  flex-wrap items-center">
+                <button
+                  onClick={handlePrayerButtonClick}
+                  className="px-3 py-1 py-2 px-4 w-50 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#409F9C] hover:bg-[#368B88] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#409F9C]"
+                >
+                  Submit a Prayer
+                </button>
+                <button
+                  onClick={() => navigate("/praiseWall")}
+                  className="px-3 py-1 py-2 px-4 w-50 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#409F9C] hover:bg-[#368B88] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#409F9C]"
+                >
+                  Praises
+                </button>
+                <button
+                  onClick={() => setShowFilter(!showFilter)}
+                  className="px-4 py-2 w-40 border border-transparent rounded-xl shadow-md text-sm font-medium bg-green-200 text-green-800 hover:bg-green-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 ease-in-out"
+                >
+                  {showFilter ? "Hide Filters" : "Filters"}
+                </button>
+              </div>
             </div>
-
-            <div id="prayers-container" className="flex flex-col gap-4 p-2">
+            {showFilter && (
+              <CategorySelector
+                selectedCategories={selectedCategories}
+                onChange={setSelectedCategories}
+                mode="filter"
+                className="mb-4"
+              />
+            )}
+            
+            {prayers.length > 0 ? (
+              <div id="prayers-container" className="flex flex-col gap-4 p-2">
               {prayers.map((prayer, index) => (
                 <PrayerCard
                   key={`prayer-${index}`}
@@ -255,7 +333,7 @@ const PrayerWall = () => {
                   prayerCount={parseInt(prayer.pray_count, 10)}
                   userName={prayer.name}
                   country={prayer.country}
-                  category={prayer.category}
+                  categories={prayer.categories}
                   content={prayer.message}
                   prayerID={prayer.id}
                   type={prayer.type}
@@ -263,6 +341,8 @@ const PrayerWall = () => {
                 />
               ))}
             </div>
+              ): (<div className="flex text-center flex-1 items-center h-full justify-center"><p className="text-gray-500">No prayers found with current filters</p></div>)}
+            
             <AuthChoiceModal
               isOpen={showAuthModal}
               onClose={() => setShowAuthModal(false)}
@@ -520,16 +600,30 @@ const PrayerWall = () => {
                   className="block text-sm font-medium text-gray-700"
                 >
                   Email
+                  {(mailchimpOptions.wantEncouragement ||
+                    mailchimpOptions.wantUpdates) && (
+                    <span className="text-red-500 ml-1">*</span>
+                  )}
                 </label>
                 <input
-                  type="text"
+                  type="email"
                   id="email"
                   name="email"
                   value={prayerForm.email}
-                  placeholder="optional"
+                  placeholder={
+                    mailchimpOptions.wantEncouragement ||
+                    mailchimpOptions.wantUpdates
+                      ? "Required for subscriptions"
+                      : "optional"
+                  }
                   onChange={handleChange}
-                  className="mt-1 py-1 px-1 block w-full bg-white rounded-md border-2 border-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className={`mt-1 py-1 px-1 block w-full bg-white rounded-md border-2 
+      ${emailError ? "border-red-500" : "border-gray-800"} 
+      shadow-sm focus:border-indigo-500 focus:ring-indigo-500`}
                 />
+                {emailError && (
+                  <p className="mt-1 text-sm text-red-500">{emailError}</p>
+                )}
               </div>
 
               <div>
@@ -550,23 +644,17 @@ const PrayerWall = () => {
                 />
               </div>
 
-              {/* <div>
-                <label
-                  htmlFor="category"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Prayer Category
-                </label>
-                <textarea
-                  id="category"
-                  name="category"
-                  value={prayerForm.category}
-                  placeholder="eg: medical, financial, spiritual, etc"
-                  onChange={handleChange}
-                  required
-                  className="mt-1 block py-1 px-1 w-full bg-white rounded-md border-2 border-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                />
-              </div> */}
+              <CategorySelector
+                selectedCategories={prayerForm.categories}
+                onChange={(newCategories) =>
+                  setPrayerForm((prev) => ({
+                    ...prev,
+                    categories: newCategories,
+                  }))
+                }
+                mode="form"
+                required={true}
+              />
               <div>
                 <label
                   htmlFor="message"
@@ -589,7 +677,7 @@ const PrayerWall = () => {
                   htmlFor="visibility"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Show this on Praise Wall?
+                  Show this on Prayer Wall?
                 </label>
                 <select
                   value={visibility}
@@ -602,6 +690,41 @@ const PrayerWall = () => {
                   <option value={0}>No! Do not display this prayer</option>
                 </select>
               </div>
+              {/* <div className="space-y-2">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="wantEncouragement"
+                    name="wantEncouragement"
+                    checked={mailchimpOptions.wantEncouragement}
+                    onChange={handleMailchimpOptionChange}
+                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                  />
+                  <label
+                    htmlFor="wantEncouragement"
+                    className="ml-2 block text-sm text-gray-700"
+                  >
+                    I want to receive notes of encouragement
+                  </label>
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="wantUpdates"
+                    name="wantUpdates"
+                    checked={mailchimpOptions.wantUpdates}
+                    onChange={handleMailchimpOptionChange}
+                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                  />
+                  <label
+                    htmlFor="wantUpdates"
+                    className="ml-2 block text-sm text-gray-700"
+                  >
+                    I want to receive updates
+                  </label>
+                </div>
+              </div> */}
               <div className="flex flex-row">
                 <button
                   type="submit"

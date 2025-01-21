@@ -44,7 +44,7 @@ const PrayerDetails = () => {
           prayerCount={parseInt(prayer.pray_count, 10)}
           userName={prayer.name}
           country={prayer.country}
-          category={prayer.category}
+          categories={prayer.categories}
           content={prayer.message}
           prayerID={prayer.id}
           type={prayer.type}
