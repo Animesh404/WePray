@@ -307,22 +307,22 @@ const PrayerWall = () => {
                 >
                   Praises
                 </button>
-                <button
+                {/* <button
                   onClick={() => setShowFilter(!showFilter)}
                   className="px-4 py-2 w-40 border border-transparent rounded-xl shadow-md text-sm font-medium bg-green-200 text-green-800 hover:bg-green-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 ease-in-out"
                 >
                   {showFilter ? "Hide Filters" : "Filters"}
-                </button>
+                </button> */}
               </div>
             </div>
-            {showFilter && (
+            {/* {showFilter && (
               <CategorySelector
                 selectedCategories={selectedCategories}
                 onChange={setSelectedCategories}
                 mode="filter"
                 className="mb-4"
               />
-            )}
+            )} */}
             
             {prayers.length > 0 ? (
               <div id="prayers-container" className="flex flex-col gap-4 p-2">
