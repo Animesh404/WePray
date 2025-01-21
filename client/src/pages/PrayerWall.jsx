@@ -67,7 +67,7 @@ const PrayerWall = () => {
         );
         return [...prevPrayers, ...newPrayers];
       });
-
+      console.log(selectedCategories);
       // If fewer prayers are returned than the limit, we've fetched all pages
       if (selectedCategories.length === 0 && fetchedPrayers.length < 10)
         setHasMore(false);
