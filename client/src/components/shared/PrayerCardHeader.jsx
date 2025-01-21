@@ -39,7 +39,7 @@ const PrayerCardHeader = ({ userName, country, categories = [] }) => {
             onClick={() => setShowAllCategories(true)}
             className="px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200"
           >
-            +{categories.length - 1} more
+            +{categories.length - 1}
           </button>
         )}
       </div>
