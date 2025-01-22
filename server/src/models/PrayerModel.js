@@ -112,9 +112,8 @@ class PrayerModel {
         type,
         categories,
       } = prayerData;
-
-      const processedUserId = is_anonymous ? null : user_id;
-
+     
+      const processedUserId = typeof user_id === 'undefined' ? null : user_id;
       // Insert prayer
       const [result] = await connection.query(
         "INSERT INTO prayers (name, user_id, country, email, phone, message, visibility, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
@@ -131,6 +130,7 @@ class PrayerModel {
       );
 
       const prayerId = result.insertId;
+      console.log("user id:",processedUserId);
       console.log("Inserted prayer with ID:", prayerId);
       console.log("user id of prayer", processedUserId);
 
