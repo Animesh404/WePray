@@ -1055,7 +1055,13 @@ const Dashboard = () => {
         )}
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
+          <span>
           <h1 className="text-2xl font-semibold">Welcome, {user.name}</h1>
+          <h2 className=" p-1 text-xl font-bold">
+  Note: Site is under maintenance, some features may not work as intended.
+</h2>
+          </span>
+          
           <button
             onClick={logout}
             className="bg-red-500 text-white px-4 py-2 rounded-md"
