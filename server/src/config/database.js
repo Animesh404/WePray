@@ -1,30 +1,6 @@
-const express = require('express');
-const session = require('express-session');
-const MySQLStore = require('express-mysql-session')(session);
-
-const urlDB = process.env.MYSQL_URL;
-
-const app = express();
-// Initialize session store using the URL directly
-const sessionStore = new MySQLStore({}, urlDB);
-
-// Session middleware configuration
-app.use(session({
-    key: 'sessionId',
-    secret: process.env.SESSION_SECRET,
-    store: sessionStore,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        secure: process.env.NODE_ENV === 'production',
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000 
-    }
-}));
-// DEV
-// const mysql = require('mysql2/promise');
-// require('dotenv').config();
-// // const urlDB = 'mysql://root:UDzcFkUdZdJFOmducOpUICxYRpVZuXXo@mysql.railway.internal:3306/railway'
+const mysql = require('mysql2/promise');
+require('dotenv').config();
+const urlDB = process.env.MYSQL_URL
 
 // const pool = mysql.createPool({
 //     host: process.env.DB_HOST || 'localhost',
@@ -36,5 +12,7 @@ app.use(session({
 //     queueLimit: 0
 // });
 
-// module.exports = pool;
+const pool = mysql.createPool(urlDB);
 
+
+module.exports = pool;
