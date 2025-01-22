@@ -43,81 +43,132 @@ class PrayerModel {
     ];
 
     try {
-        for (const query of queries) {
-            await pool.query(query);
-        }
-        
-        // Insert predefined categories
-        const categories = [
-            'Thanksgiving', 'Confession', 'Intercession', 'Petition',
-            'Healing', 'Protection', 'Deliverance', 'Guidance',
-            'Strength', 'Peace', 'Forgiveness', 'Hope',
-            'Faith', 'Love', 'Unity', 'Wisdom',
-            'Comfort', 'Blessings', 'Gratitude', 'Others'
-        ];
-        
-        const insertCategoryQuery = 'INSERT IGNORE INTO categories (name) VALUES ?';
-        await pool.query(insertCategoryQuery, [categories.map(cat => [cat])]);
-        
-        console.log('Prayer categories schema created successfully');
+      for (const query of queries) {
+        await pool.query(query);
+      }
+
+      // Insert predefined categories
+      const categories = [
+        "Thanksgiving",
+        "Confession",
+        "Intercession",
+        "Petition",
+        "Healing",
+        "Protection",
+        "Deliverance",
+        "Guidance",
+        "Strength",
+        "Peace",
+        "Forgiveness",
+        "Hope",
+        "Faith",
+        "Love",
+        "Unity",
+        "Wisdom",
+        "Comfort",
+        "Blessings",
+        "Gratitude",
+        "Others",
+      ];
+
+      const newCategories = [
+        "Marriage",
+        "Family",
+        "Finances",
+        "Employment",
+        "Health",
+        "Spiritual",
+      ];
+
+      const allCategories = [...new Set([...categories, ...newCategories])];
+
+      const insertCategoryQuery =
+        "INSERT IGNORE INTO categories (name) VALUES ?";
+      await pool.query(insertCategoryQuery, [
+        allCategories.map((cat) => [cat]),
+      ]);
+
+      console.log("Prayer categories schema created successfully");
     } catch (error) {
-        console.error('Error creating prayer categories schema:', error);
-        throw error;
+      console.error("Error creating prayer categories schema:", error);
+      throw error;
     }
   }
 
   static async create(prayerData) {
     const connection = await pool.getConnection();
     try {
-        await connection.beginTransaction();
-        
-        const { name, country, email, user_id, phone, message, is_anonymous, 
-            visibility, type, categories } = prayerData;
-        
-        const processedUserId = is_anonymous ? null : user_id;
-        
-        // Insert prayer
-        const [result] = await connection.query(
-            'INSERT INTO prayers (name, user_id, country, email, phone, message, visibility, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            [name, processedUserId, country, email, phone, message, visibility, type]
+      await connection.beginTransaction();
+
+      const {
+        name,
+        country,
+        email,
+        user_id,
+        phone,
+        message,
+        is_anonymous,
+        visibility,
+        type,
+        categories,
+      } = prayerData;
+
+      const processedUserId = is_anonymous ? null : user_id;
+
+      // Insert prayer
+      const [result] = await connection.query(
+        "INSERT INTO prayers (name, user_id, country, email, phone, message, visibility, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        [
+          name,
+          processedUserId,
+          country,
+          email,
+          phone,
+          message,
+          visibility,
+          type,
+        ]
+      );
+
+      const prayerId = result.insertId;
+      console.log("Inserted prayer with ID:", prayerId);
+      console.log("user id of prayer", processedUserId);
+
+      // Insert prayer categories if provided
+      if (categories && categories.length > 0) {
+        const [categoryRows] = await connection.query(
+          "SELECT id FROM categories WHERE name IN (?)",
+          [categories]
         );
-        
-        const prayerId = result.insertId;
-        
-        // Insert prayer categories if provided
-        if (categories && categories.length > 0) {
-            const [categoryRows] = await connection.query(
-                'SELECT id FROM categories WHERE name IN (?)',
-                [categories]
-            );
-            
-            if (categoryRows.length > 0) {
-                const categoryValues = categoryRows.map(cat => [prayerId, cat.id]);
-                await connection.query(
-                    'INSERT INTO prayer_categories (prayer_id, category_id) VALUES ?',
-                    [categoryValues]
-                );
-            }
+
+        if (categoryRows.length > 0) {
+          const categoryValues = categoryRows.map((cat) => [prayerId, cat.id]);
+          await connection.query(
+            "INSERT INTO prayer_categories (prayer_id, category_id) VALUES ?",
+            [categoryValues]
+          );
         }
-        
-        await connection.commit();
-        
-        return {
-            id: prayerId,
-            ...prayerData,
-            name: name,
-            user_id: processedUserId
-        };
+      }
+
+      await connection.commit();
+
+      return {
+        id: prayerId,
+        ...prayerData,
+        name: name,
+        user_id: processedUserId,
+      };
     } catch (error) {
-        await connection.rollback();
-        throw error;
+      await connection.rollback();
+      throw error;
     } finally {
-        connection.release();
+      connection.release();
     }
-}
-static async findById(id) {
+  }
+  static async findById(id) {
     try {
-        const [prayers] = await pool.query(`
+      const [prayers] = await pool.query(
+        `
             SELECT 
                 p.*,
                 u.name as user_name,
@@ -130,19 +181,20 @@ static async findById(id) {
             LEFT JOIN categories c ON pc.category_id = c.id
             WHERE p.id = ?
             GROUP BY p.id`,
-            [id]
-        );
-        
-        if (prayers[0]) {
-            prayers[0].categories = prayers[0].categories ? 
-                prayers[0].categories.split(',') : [];
-        }
-        
-        return prayers[0];
+        [id]
+      );
+
+      if (prayers[0]) {
+        prayers[0].categories = prayers[0].categories
+          ? prayers[0].categories.split(",")
+          : [];
+      }
+
+      return prayers[0];
     } catch (error) {
-        throw error;
+      throw error;
     }
-}
+  }
 
   static async updateMessage(id, newMessage) {
     try {
@@ -163,18 +215,20 @@ static async findById(id) {
 
   static async getAll(page = 1, limit = 10, filters = {}) {
     try {
-        const offset = (page - 1) * limit;
-        const whereClauses = [];
-        const values = [];
+      const offset = (page - 1) * limit;
+      const whereClauses = [];
+      const values = [];
 
-        if (filters.user_id) {
-            whereClauses.push("p.user_id = ?");
-            values.push(filters.user_id);
-        }
+      if (filters.user_id) {
+        whereClauses.push("p.user_id = ?");
+        values.push(filters.user_id);
+      }
 
-        if (filters.categories && filters.categories.length > 0) {
-            const placeholders = Array(filters.categories.length).fill('?').join(',');
-            whereClauses.push(`
+      if (filters.categories && filters.categories.length > 0) {
+        const placeholders = Array(filters.categories.length)
+          .fill("?")
+          .join(",");
+        whereClauses.push(`
                 EXISTS (
                     SELECT 1
                     FROM prayer_categories pc2
@@ -185,17 +239,18 @@ static async findById(id) {
                     HAVING COUNT(DISTINCT c2.name) = ?
                 )
             `);
-            // Add each category as a separate parameter
-            values.push(...filters.categories);
-            values.push(filters.categories.length);
-        }
+        // Add each category as a separate parameter
+        values.push(...filters.categories);
+        values.push(filters.categories.length);
+      }
 
-        const whereString = whereClauses.length > 0 ? 
-            `WHERE ${whereClauses.join(' AND ')}` : '';
+      const whereString =
+        whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : "";
 
-        // console.log("Query values:", values);
+      // console.log("Query values:", values);
 
-        const [prayers] = await pool.query(`
+      const [prayers] = await pool.query(
+        `
             SELECT 
                 p.*,
                 u.name as user_name,
@@ -209,81 +264,83 @@ static async findById(id) {
             ${whereString}
             GROUP BY p.id
             ORDER BY p.status = 'pending' DESC, p.created_at DESC
-            LIMIT ? OFFSET ?`, 
-            [...values, limit, offset]
-        );
+            LIMIT ? OFFSET ?`,
+        [...values, limit, offset]
+      );
 
-        // Process categories
-        prayers.forEach(prayer => {
-            prayer.categories = prayer.categories ? 
-                prayer.categories.split(',') : [];
-        });
+      // Process categories
+      prayers.forEach((prayer) => {
+        prayer.categories = prayer.categories
+          ? prayer.categories.split(",")
+          : [];
+      });
 
-        const [total] = await pool.query(`
+      const [total] = await pool.query(
+        `
             SELECT COUNT(DISTINCT p.id) as count
             FROM prayers p
             LEFT JOIN prayer_categories pc ON p.id = pc.prayer_id
             LEFT JOIN categories c ON pc.category_id = c.id
             ${whereString}`,
-            values
-        );
+        values
+      );
 
-        // console.log("Found prayers:", prayers.length);
-        return {
-            prayers,
-            total: total[0].count
-        };
+      // console.log("Found prayers:", prayers.length);
+      return {
+        prayers,
+        total: total[0].count,
+      };
     } catch (error) {
-        console.error('Error in getAll:', error);
-        throw error;
+      console.error("Error in getAll:", error);
+      throw error;
     }
-}
+  }
 
-// Helper method to update prayer categories
-static async updateCategories(prayerId, categories) {
+  // Helper method to update prayer categories
+  static async updateCategories(prayerId, categories) {
     const connection = await pool.getConnection();
     try {
-        await connection.beginTransaction();
-        
-        // Remove existing categories
-        await connection.query(
-            'DELETE FROM prayer_categories WHERE prayer_id = ?',
-            [prayerId]
+      await connection.beginTransaction();
+
+      // Remove existing categories
+      await connection.query(
+        "DELETE FROM prayer_categories WHERE prayer_id = ?",
+        [prayerId]
+      );
+
+      // Add new categories
+      if (categories && categories.length > 0) {
+        const [categoryRows] = await connection.query(
+          "SELECT id FROM categories WHERE name IN (?)",
+          [categories]
         );
-        
-        // Add new categories
-        if (categories && categories.length > 0) {
-            const [categoryRows] = await connection.query(
-                'SELECT id FROM categories WHERE name IN (?)',
-                [categories]
-            );
-            
-            if (categoryRows.length > 0) {
-                const categoryValues = categoryRows.map(cat => [prayerId, cat.id]);
-                await connection.query(
-                    'INSERT INTO prayer_categories (prayer_id, category_id) VALUES ?',
-                    [categoryValues]
-                );
-            }
+
+        if (categoryRows.length > 0) {
+          const categoryValues = categoryRows.map((cat) => [prayerId, cat.id]);
+          await connection.query(
+            "INSERT INTO prayer_categories (prayer_id, category_id) VALUES ?",
+            [categoryValues]
+          );
         }
-        
-        await connection.commit();
-        return true;
+      }
+
+      await connection.commit();
+      return true;
     } catch (error) {
-        await connection.rollback();
-        throw error;
+      await connection.rollback();
+      throw error;
     } finally {
-        connection.release();
+      connection.release();
     }
-}
+  }
 
-static async getAllApprovedPrayers(page = 1, limit = 10, categories = null) {
+  static async getAllApprovedPrayers(page = 1, limit = 10, categories = null) {
     try {
-        const offset = (page - 1) * limit;
-        let queryParams = [];
-        // console.log("Categories received in model:", categories);
-        
-        let query = `
+      const offset = (page - 1) * limit;
+      let queryParams = [];
+      // console.log("Categories received in model:", categories);
+
+      let query = `
             SELECT 
                 p.*,
                 u.name as user_name,
@@ -297,7 +354,7 @@ static async getAllApprovedPrayers(page = 1, limit = 10, categories = null) {
             WHERE p.type = 'prayer'
                 AND p.visibility = 1`;
 
-        let countQuery = `
+      let countQuery = `
             SELECT COUNT(DISTINCT p.id) AS count
             FROM prayers p
             LEFT JOIN prayer_categories pc ON p.id = pc.prayer_id
@@ -305,10 +362,10 @@ static async getAllApprovedPrayers(page = 1, limit = 10, categories = null) {
             WHERE p.type = 'prayer'
                 AND p.visibility = 1`;
 
-        // Add category filter if categories are provided
-        if (categories && categories.length > 0) {
-            const placeholders = Array(categories.length).fill('?').join(',');
-            query += ` AND EXISTS (
+      // Add category filter if categories are provided
+      if (categories && categories.length > 0) {
+        const placeholders = Array(categories.length).fill("?").join(",");
+        query += ` AND EXISTS (
                 SELECT 1
                 FROM prayer_categories pc2
                 JOIN categories c2 ON pc2.category_id = c2.id
@@ -317,7 +374,7 @@ static async getAllApprovedPrayers(page = 1, limit = 10, categories = null) {
                 GROUP BY pc2.prayer_id
                 HAVING COUNT(DISTINCT c2.name) = ?
             )`;
-            countQuery += ` AND EXISTS (
+        countQuery += ` AND EXISTS (
                 SELECT 1
                 FROM prayer_categories pc2
                 JOIN categories c2 ON pc2.category_id = c2.id
@@ -326,56 +383,59 @@ static async getAllApprovedPrayers(page = 1, limit = 10, categories = null) {
                 GROUP BY pc2.prayer_id
                 HAVING COUNT(DISTINCT c2.name) = ?
             )`;
-            
-            // Add each category as a separate parameter
-            queryParams.push(...categories);
-            queryParams.push(categories.length);
-        }
 
-        // Add group by, order by, and limit
-        query += `
+        // Add each category as a separate parameter
+        queryParams.push(...categories);
+        queryParams.push(categories.length);
+      }
+
+      // Add group by, order by, and limit
+      query += `
             GROUP BY p.id
             ORDER BY p.created_at DESC
             LIMIT ? OFFSET ?`;
-        
-        // Add limit and offset to params
-        queryParams.push(limit, offset);
 
-        // console.log("Final query:", query);
-        // console.log("Query params:", queryParams);
+      // Add limit and offset to params
+      queryParams.push(limit, offset);
 
-        // Execute queries
-        const [prayers] = await pool.query(query, queryParams);
-        
-        // For count query, we need to pass the categories again
-        const countParams = categories && categories.length > 0 
-            ? [...categories, categories.length] 
-            : [];
-        const [total] = await pool.query(countQuery, countParams);
+      // console.log("Final query:", query);
+      // console.log("Query params:", queryParams);
 
-        // Process categories for each prayer
-        prayers.forEach(prayer => {
-            prayer.categories = prayer.categories ? prayer.categories.split(',') : [];
-        });
+      // Execute queries
+      const [prayers] = await pool.query(query, queryParams);
 
-        // console.log("Prayers found:", prayers.length);
-        return {
-            prayers,
-            total: total[0].count
-        };
+      // For count query, we need to pass the categories again
+      const countParams =
+        categories && categories.length > 0
+          ? [...categories, categories.length]
+          : [];
+      const [total] = await pool.query(countQuery, countParams);
+
+      // Process categories for each prayer
+      prayers.forEach((prayer) => {
+        prayer.categories = prayer.categories
+          ? prayer.categories.split(",")
+          : [];
+      });
+
+      // console.log("Prayers found:", prayers.length);
+      return {
+        prayers,
+        total: total[0].count,
+      };
     } catch (error) {
-        console.error('Error in getAllApprovedPrayers:', error);
-        throw error;
+      console.error("Error in getAllApprovedPrayers:", error);
+      throw error;
     }
-}
+  }
 
-static async getAllApprovedPraises(page = 1, limit = 10, categories = null) {
+  static async getAllApprovedPraises(page = 1, limit = 10, categories = null) {
     try {
-        const offset = (page - 1) * limit;
-        let queryParams = [];
-        // console.log("Categories received in model:", categories);
-        
-        let query = `
+      const offset = (page - 1) * limit;
+      let queryParams = [];
+      // console.log("Categories received in model:", categories);
+
+      let query = `
             SELECT 
                 p.*,
                 u.name as user_name,
@@ -389,7 +449,7 @@ static async getAllApprovedPraises(page = 1, limit = 10, categories = null) {
             WHERE p.type = 'praise'
                 AND p.visibility = 1`;
 
-        let countQuery = `
+      let countQuery = `
             SELECT COUNT(DISTINCT p.id) AS count
             FROM prayers p
             LEFT JOIN prayer_categories pc ON p.id = pc.prayer_id
@@ -397,10 +457,10 @@ static async getAllApprovedPraises(page = 1, limit = 10, categories = null) {
             WHERE p.type = 'praise'
                 AND p.visibility = 1`;
 
-        // Add category filter if categories are provided
-        if (categories && categories.length > 0) {
-            const placeholders = Array(categories.length).fill('?').join(',');
-            query += ` AND EXISTS (
+      // Add category filter if categories are provided
+      if (categories && categories.length > 0) {
+        const placeholders = Array(categories.length).fill("?").join(",");
+        query += ` AND EXISTS (
                 SELECT 1
                 FROM prayer_categories pc2
                 JOIN categories c2 ON pc2.category_id = c2.id
@@ -409,7 +469,7 @@ static async getAllApprovedPraises(page = 1, limit = 10, categories = null) {
                 GROUP BY pc2.prayer_id
                 HAVING COUNT(DISTINCT c2.name) = ?
             )`;
-            countQuery += ` AND EXISTS (
+        countQuery += ` AND EXISTS (
                 SELECT 1
                 FROM prayer_categories pc2
                 JOIN categories c2 ON pc2.category_id = c2.id
@@ -418,48 +478,51 @@ static async getAllApprovedPraises(page = 1, limit = 10, categories = null) {
                 GROUP BY pc2.prayer_id
                 HAVING COUNT(DISTINCT c2.name) = ?
             )`;
-            
-            // Add each category as a separate parameter
-            queryParams.push(...categories);
-            queryParams.push(categories.length);
-        }
 
-        // Add group by, order by, and limit
-        query += `
+        // Add each category as a separate parameter
+        queryParams.push(...categories);
+        queryParams.push(categories.length);
+      }
+
+      // Add group by, order by, and limit
+      query += `
             GROUP BY p.id
             ORDER BY p.created_at DESC
             LIMIT ? OFFSET ?`;
-        
-        // Add limit and offset to params
-        queryParams.push(limit, offset);
 
-        // console.log("Final query:", query);
-        // console.log("Query params:", queryParams);
+      // Add limit and offset to params
+      queryParams.push(limit, offset);
 
-        // Execute queries
-        const [prayers] = await pool.query(query, queryParams);
-        
-        // For count query, we need to pass the categories again
-        const countParams = categories && categories.length > 0 
-            ? [...categories, categories.length] 
-            : [];
-        const [total] = await pool.query(countQuery, countParams);
+      // console.log("Final query:", query);
+      // console.log("Query params:", queryParams);
 
-        // Process categories for each prayer
-        prayers.forEach(prayer => {
-            prayer.categories = prayer.categories ? prayer.categories.split(',') : [];
-        });
+      // Execute queries
+      const [prayers] = await pool.query(query, queryParams);
 
-        // console.log("Praises found:", prayers.length);
-        return {
-            prayers,
-            total: total[0].count
-        };
+      // For count query, we need to pass the categories again
+      const countParams =
+        categories && categories.length > 0
+          ? [...categories, categories.length]
+          : [];
+      const [total] = await pool.query(countQuery, countParams);
+
+      // Process categories for each prayer
+      prayers.forEach((prayer) => {
+        prayer.categories = prayer.categories
+          ? prayer.categories.split(",")
+          : [];
+      });
+
+      // console.log("Praises found:", prayers.length);
+      return {
+        prayers,
+        total: total[0].count,
+      };
     } catch (error) {
-        console.error('Error in getAllApprovedPraises:', error);
-        throw error;
+      console.error("Error in getAllApprovedPraises:", error);
+      throw error;
     }
-}
+  }
 
   static async updateStatus(id, status, reviewerId) {
     try {

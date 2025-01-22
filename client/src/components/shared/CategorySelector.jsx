@@ -1,42 +1,72 @@
-import React from 'react';
+import React from "react";
 
-const CategorySelector = ({ 
-  selectedCategories = [], 
+const CategorySelector = ({
+  selectedCategories = [],
   onChange,
-  mode = 'form', 
+  mode = "form",
   label,
-  className = '',
-  required = false
+  className = "",
+  required,
 }) => {
   const categories = [
-    'Thanksgiving', 'Confession', 'Intercession', 'Petition',
-    'Healing', 'Protection', 'Deliverance', 'Guidance',
-    'Strength', 'Peace', 'Forgiveness', 'Hope',
-    'Faith', 'Love', 'Unity', 'Wisdom',
-    'Comfort', 'Blessings', 'Gratitude', 'Others'
+    "Thanksgiving",
+    "Confession",
+    "Intercession",
+    "Petition",
+    "Healing",
+    "Protection",
+    "Deliverance",
+    "Guidance",
+    "Strength",
+    "Peace",
+    "Forgiveness",
+    "Hope",
+    "Faith",
+    "Love",
+    "Unity",
+    "Wisdom",
+    "Comfort",
+    "Blessings",
+    "Gratitude",
+    "Marriage",
+    "Family",
+    "Finances",
+    "Employment",
+    "Health",
+    "Spiritual",
+    "Others",
   ];
 
-  const handleCategoryClick = (category) => {
-    const currentSelected = selectedCategories || [];
-    if (currentSelected.includes(category)) {
-      onChange(currentSelected.filter(c => c !== category));
-    } else {
-      onChange([...currentSelected, category]);
-    }
-  };
+  // const handleCategoryClick = (category) => {
+  //   const currentSelected = selectedCategories || [];
+  //   if (currentSelected.includes(category)) {
+  //     onChange(currentSelected.filter(c => c !== category));
+  //   } else {
+  //     onChange([...currentSelected, category]);
+  //   }
+  // };
 
   const handleClearAll = () => {
     onChange([]);
   };
 
+  const handleChange = (e) => {
+    const newCategory = e.target.value;
+    if (newCategory && !selectedCategories.includes(newCategory)) {
+      onChange([...selectedCategories, newCategory]);
+    }
+    e.target.value = ""; 
+  };
+
   return (
     <div className={`space-y-2 ${className}`}>
       <div className="flex justify-between items-center">
-        <label className="block text-sm px-4 md:px-1 font-medium text-gray-700">
-          {label || (mode === 'form' ? 'Prayer Categories' : 'Filter by Category:')}
+        <label className="block text-sm  font-medium text-gray-700">
+          {label ||
+            (mode === "form" ? "Prayer Categories" : "Filter by Category:")}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
-        {mode === 'filter' && selectedCategories.length > 0 && (
+        {selectedCategories.length > 0 && (
           <button
             type="button"
             onClick={handleClearAll}
@@ -46,37 +76,36 @@ const CategorySelector = ({
           </button>
         )}
       </div>
-      
-      {mode === 'form' && (
+
+      {mode === "form" && (
         <p className="text-sm text-gray-500 mt-1">
           Select one or more categories
         </p>
       )}
 
-      <div className="flex flex-wrap gap-2">
+      <select
+        value=""
+        onChange={handleChange}
+        required={required && selectedCategories.length === 0}
+        className="w-full px-3 py-2 border bg-white border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+      >
+        <option value="">Select category</option>
         {categories.map((category) => (
-          <button
-            key={category}
-            type="button"
-            onClick={() => handleCategoryClick(category)}
-            className={`px-3 py-1 rounded-full text-sm font-medium transition-colors
-              ${(selectedCategories || []).includes(category)
-                ? 'bg-green-100 text-green-800 font-medium hover:bg-green-300 hover:border-green-300'
-                : 'bg-gray-100 text-gray-800 hover:bg-gray-200 hover:border-green-300'
-              } ${mode === 'filter' ? 'text-xs' : 'text-sm'}`}
-          >
+          <option key={category} value={category}>
             {category}
-          </button>
+          </option>
         ))}
-      </div>
+      </select>
 
       {selectedCategories.length > 0 && (
         <div className="flex items-center gap-2 text-sm text-gray-500">
-          <span className='px-4 md:px-1'>{mode === 'filter' ? 'Filtering by:' : 'Selected:'}</span>
+          <span className="px-4 md:px-1">
+            {mode === "filter" ? "Filtering by:" : "Selected:"}
+          </span>
           <div className="flex flex-wrap gap-1">
             {selectedCategories.map((cat) => (
-              <span 
-                key={cat} 
+              <span
+                key={cat}
                 className="inline-flex items-center px-2 py-0.5 rounded bg-green-100 text-green-800"
               >
                 {cat}
