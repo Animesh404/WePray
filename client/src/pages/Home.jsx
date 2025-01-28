@@ -171,7 +171,7 @@ const Home = () => {
           <h2>Share Faith, Earn Rewards</h2>
           <br />
           <p>
-            At WiPray, we believe in spreading the power of prayer far and wide. By joining our affiliate program, you can help grow our compassionate community while earning rewards. As a WiPray affiliate, you’ll have the opportunity to share the platform with your network and inspire others to connect, pray, and uplift one another.
+            At WiPray, we believe in spreading the power of prayer far and wide. By joining our affiliate program, you can help grow our compassionate community while earning rewards. As a WiPray affiliate, you'll have the opportunity to share the platform with your network and inspire others to connect, pray, and uplift one another.
           </p>
         </div>
         <div className="how-right">
@@ -194,6 +194,179 @@ const Home = () => {
           </div>
         ))}
       </div> */}
+
+      <div className="subscription-section bg-[#B4D4D3] py-16 px-4 md:px-8 lg:px-16 rounded-3xl mx-4 md:mx-8 lg:mx-16 my-16">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 relative z-10">Subscription Plan</h1>
+          <p className="text-xl md:text-2xl max-w-3xl mx-auto relative z-10">
+            Take your spiritual journey to the next level with our subscription plans.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {/* Standard Plan */}
+          <div className="bg-white p-8 rounded-3xl flex flex-col h-full">
+            <h2 className="text-2xl font-bold mb-4">Standard Plan</h2>
+            <p className="text-gray-600 mb-6">
+              Perfect for individuals who want to actively engage in a supportive prayer community.
+            </p>
+            <div className="mb-6">
+              <span className="text-4xl font-bold">Free</span>
+              <p className="text-gray-400">Pause or cancel anytime</p>
+            </div>
+            <button className="bg-[#B4D4D3] text-black font-semibold py-3 px-6 rounded-full mb-8">
+              Active
+            </button>
+            <ul className="space-y-4">
+              <li className="flex items-center">
+                <svg className="w-5 h-5 mr-2 text-[#409F9C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Post Prayer Requests
+              </li>
+              <li className="flex items-center">
+                <svg className="w-5 h-5 mr-2 text-[#409F9C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Join global prayer community
+              </li>
+              <li className="flex items-center">
+                <svg className="w-5 h-5 mr-2 text-[#409F9C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Receive Prayer Notifications
+              </li>
+              <li className="flex items-center">
+                <svg className="w-5 h-5 mr-2 text-[#409F9C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Personal Prayer Journal
+              </li>
+            </ul>
+          </div>
+
+          {/* Premium Plan */}
+          <div className="bg-white p-8 rounded-3xl flex flex-col h-full">
+            <h2 className="text-2xl font-bold mb-4 relative z-10">Premium Plan</h2>
+            <p className="text-gray-600 mb-6 relative z-10">
+              Ideal for those seeking deeper engagement and exclusive privileges within the community.
+            </p>
+            <div className="mb-6">
+              <span className="text-4xl font-bold">$39/m</span>
+              <p className="text-gray-400">Pause or cancel anytime</p>
+            </div>
+            <button className="bg-[#409F9C] text-white font-semibold py-3 px-6 rounded-full mb-8">
+              Subscribe Now
+            </button>
+            <ul className="space-y-4">
+              <li className="flex items-center">
+                <svg className="w-5 h-5 mr-2 text-[#409F9C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Everything in the Free Plan, plus: 
+              </li>
+              <li className="flex items-center">
+                <svg className="min-w-5 h-5 mr-2 text-[#409F9C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Access to exclusive private prayer groups—join or create your own.  
+              </li>
+              {/* Add other premium features */}
+              <li className="flex items-center">
+                <svg className="min-w-5 h-5 mr-2 text-[#409F9C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Receive personalized Bible promises tailored to uplift and inspire.
+              </li>
+              <li className="flex items-center">
+                <svg className="min-w-5 h-5 mr-2 text-[#409F9C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Stay spiritually enriched with daily prayer devotionals.  
+              </li>
+              <li className="flex items-center">
+                <svg className="min-w-5 h-5 mr-2 text-[#409F9C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Gain insights with an advanced analytics dashboard.  
+              </li>
+              <li className="flex items-center">
+                <svg className="min-w-5 h-5 mr-2 text-[#409F9C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Receive private messages of encouragement from fellow users.
+              </li>
+              <li className="flex items-center">
+                <svg className="min-w-5 h-5 mr-2 text-[#409F9C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Manage your prayer experience by editing or deleting prayer requests and praises. 
+              </li>
+              
+            </ul>
+          </div>
+
+          {/* Organization Plan */}
+          <div className="bg-white p-8 rounded-3xl flex flex-col h-full">
+            <h2 className="text-2xl font-bold mb-4 relative z-10">Organization Plan</h2>
+            <p className="text-gray-600 mb-6 relative z-10">
+              Tailored for churches, ministries, or faith-based organizations to manage collective prayer efforts.
+            </p>
+            <div className="mb-6">
+              <span className="text-3xl font-bold">Custom Pricing</span>
+              <p className="text-gray-400">Pause or cancel anytime</p>
+            </div>
+            <button className="bg-[#409F9C] text-white font-semibold py-3 px-6 rounded-full mb-8">
+              Contact Admin
+            </button>
+            <ul className="space-y-4">
+              <li className="flex items-center">
+                <svg className="min-w-5 h-5 mr-2 text-[#409F9C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Host your own prayer wall directly on your website. 
+              </li>
+              <li className="flex items-center">
+                <svg className="min-w-5 h-5 mr-2 text-[#409F9C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Enjoy full customization and branding options, including logos, colors, and fonts.
+              </li>
+              {/* Add other organization features */}
+              <li className="flex items-center">
+                <svg className="min-w-5 h-5 mr-2 text-[#409F9C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Access detailed insights with analytics tools.
+              </li>
+              <li className="flex items-center">
+                <svg className="min-w-5 h-5 mr-2 text-[#409F9C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Ensure a safe and respectful environment with moderation features. 
+              </li>
+              <li className="flex items-center">
+                <svg className="min-w-5 h-5 mr-2 text-[#409F9C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Benefit from dedicated tech support to keep everything running smoothly.
+              </li>
+              <li className="flex items-center">
+                <svg className="min-w-5 h-5 mr-2 text-[#409F9C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Control user experiences with optional feature settings.
+              </li>
+              <li className="flex items-center">
+                <svg className="min-w-5 h-5 mr-2 text-[#409F9C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Access promotional materials and marketing support to help grow your prayer community (coming soon).
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
 
       <div className="testimonial-section">
         <h1 className="title">TESTIMONIALS</h1>
