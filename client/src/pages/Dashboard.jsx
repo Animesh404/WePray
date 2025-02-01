@@ -1203,7 +1203,7 @@ useEffect(() => {
                   ? "bg-[#409F9C] text-white"
                   : "hover:bg-gray-300"
               }`}
-              onClick={() => setActiveTab("manage_users")}
+              onClick={() => handleTabChange("manage_users")}
             >
               Manage User Access
             </li>
@@ -1215,7 +1215,7 @@ useEffect(() => {
                   ? "bg-[#409F9C] text-white"
                   : "hover:bg-gray-300"
               }`}
-              onClick={() => setActiveTab("community")}
+              onClick={() => handleTabChange("community")}
             >
               Community Settings
             </li>
@@ -1251,7 +1251,7 @@ useEffect(() => {
                 ? "bg-[#409F9C] text-white"
                 : "hover:bg-gray-300"
             }`}
-            onClick={() => setActiveTab("subscription")}
+            onClick={() => handleTabChange("subscription")}
           >
             Manage Subscription
           </li>
@@ -1263,7 +1263,7 @@ useEffect(() => {
                 ? "bg-[#409F9C] text-white"
                 : "hover:bg-gray-300"
             }`}
-            onClick={() => setActiveTab("events")}
+            onClick={() => handleTabChange("events")}
           >
             Events
           </li>
@@ -1297,7 +1297,7 @@ useEffect(() => {
               </li>
               <li
                 onClick={() => {
-                  setActiveTab("dashboard");
+                  handleTabChange("dashboard");
                   setIsMobileMenuOpen(false);
                 }}
                 className={`p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors
@@ -1313,7 +1313,7 @@ useEffect(() => {
               {(user.role === "admin" || user.role === "coordinator") && (
                 <li
                   onClick={() => {
-                    setActiveTab("manage_users");
+                    handleTabChange("manage_users");
                     setIsMobileMenuOpen(false);
                   }}
                   className={`p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors
@@ -1329,7 +1329,7 @@ useEffect(() => {
               {(user.role === "admin" || user.role === "coordinator") && (
               <li
                 onClick={() => {
-                  setActiveTab("prayer_requests");
+                  handleTabChange("prayer_requests");
                   setIsMobileMenuOpen(false);
                 }}
                 className={`p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors
@@ -1345,7 +1345,7 @@ useEffect(() => {
               {user.role !== 'admin' && (
                 <li
                 onClick={() => {
-                  setActiveTab("comments");
+                  handleTabChange("comments");
                   setIsMobileMenuOpen(false);
                 }}
                 className={`p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors
@@ -1361,7 +1361,7 @@ useEffect(() => {
               {user.role !== 'admin' && (
                 <li
                 onClick={() => {
-                  setActiveTab("subscription");
+                  handleTabChange("subscription");
                   setIsMobileMenuOpen(false);
                 }}
                 className={`p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors
@@ -1377,7 +1377,7 @@ useEffect(() => {
               
               <li
                 onClick={() => {
-                  setActiveTab("events");
+                  handleTabChange("events");
                   setIsMobileMenuOpen(false);
                 }}
                 className={`p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors
