@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faAngleLeft,
@@ -35,25 +35,33 @@ const Home = () => {
   const [subButtonText, setSubButtonText] = useState("Active");
   const [endsAt, setEndsAt] = useState("");
   const { user, isSubscribed } = useAuth();
+  const location = useLocation();
   const emailShare = () => {
     const subject = "Custom Subscription Plan";
     const body =
       "I would like to inquire about the custom subscription plan for my organization.";
-    const mailtoUrl = `mailto:akjha6680@gmail.com?subject=${encodeURIComponent(
-      subject
-    )}&body=${encodeURIComponent(body)}`;
+    const mailtoUrl = `mailto:info@wipray.com 
+?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     window.location.href = mailtoUrl;
   };
   useEffect(() => {
     fetchPrayerData();
   }, []);
+  useEffect(() => {
+    if (location.hash) {
+      const element = document.getElementById(location.hash.slice(1));
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, [location]);
 
   const fetchPrayerData = async () => {
     try {
       // Fetch prayer count
       const prayersResponse = await api.get("/prayers/approvedPrayers");
       const praisesResponse = await api.get("/prayers/approvedPraises");
-      if(user){
+      if (user) {
         const subStatus = await api.get("/subscription/subStatus");
         if (subStatus.data.subscription.status === "canceled") {
           const endsat = new Date(
@@ -68,7 +76,6 @@ const Home = () => {
           setEndsAt(endsat);
         }
       }
-     
 
       const fetchedPrayerCount = prayersResponse.data?.data?.total || 0;
       const fetchedPraiseCount = praisesResponse.data?.data?.total || 0;
@@ -279,10 +286,10 @@ const Home = () => {
         ))}
       </div> */}
       <div
-        id="subscription"
+        
         className="subscription-section bg-[#B4D4D3] py-16 px-4 md:px-8 lg:px-16 rounded-3xl mx-4 md:mx-8 lg:mx-16 my-16 flex flex-col items-center"
       >
-        <div className="text-center mb-12">
+        <div className="text-center mb-12" id="subscription">
           <h1 className="text-4xl md:text-5xl font-bold mb-6 relative z-10">
             Subscription Plan
           </h1>
@@ -303,75 +310,83 @@ const Home = () => {
               </p>
               <div className="mb-6">
                 <span className="text-4xl font-bold">Free</span>
-                <p className="text-gray-400">Pause or cancel anytime</p>
+                {/* <p className="text-gray-400">Pause or cancel anytime</p> */}
               </div>
               <button className="bg-[#B4D4D3] text-black font-semibold py-3 px-6 rounded-full mb-8">
                 Active
               </button>
               <ul className="space-y-4">
-                <li className="flex items-center">
-                  <svg
-                    className="w-5 h-5 mr-2 text-[#409F9C]"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  Post Prayer Requests
+                <li className="flex">
+                  <div className="w-7 shrink-0">
+                    <svg
+                      className="w-5 h-5 text-teal-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  </div>
+                  <span className="flex-1">Post Prayer Requests</span>
                 </li>
-                <li className="flex items-center">
-                  <svg
-                    className="w-5 h-5 mr-2 text-[#409F9C]"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  Join global prayer community
+                <li className="flex">
+                  <div className="w-7 shrink-0">
+                    <svg
+                      className="w-5 h-5 text-teal-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  </div>
+                  <span className="flex-1">Join global prayer community</span>
                 </li>
-                <li className="flex items-center">
-                  <svg
-                    className="w-5 h-5 mr-2 text-[#409F9C]"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  Receive Prayer Notifications
+                <li className="flex">
+                  <div className="w-7 shrink-0">
+                    <svg
+                      className="w-5 h-5 text-teal-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  </div>
+                  <span className="flex-1">Receive Prayer Notifications</span>
                 </li>
-                <li className="flex items-center">
-                  <svg
-                    className="w-5 h-5 mr-2 text-[#409F9C]"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  Optimized for mobile
+                <li className="flex">
+                  <div className="w-7 shrink-0">
+                    <svg
+                      className="w-5 h-5 text-teal-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  </div>
+                  <span className="flex-1">Optimized for mobile</span>
                 </li>
               </ul>
             </div>
@@ -389,14 +404,14 @@ const Home = () => {
             </p>
             <div className="mb-6">
               <span className="text-4xl font-bold">$39/m</span>
-              <p className="text-gray-400">Pause or cancel anytime</p>
+              {/* <p className="text-gray-400">Pause or cancel anytime</p> */}
             </div>
             <>
               {!isSubscribed ? (
                 <StripeButton />
               ) : (
                 <div className="flex flex-col">
-                  <button className="bg-[#B4D4D3]/40 text-black font-semibold py-3 px-6 rounded-full mb-1">
+                  <button className="bg-[#B4D4D3]/40 text-black font-semibold py-3 px-6 rounded-full mb-1 cursor-not-allowed">
                     {subButtonText}
                   </button>
                   <button
@@ -547,7 +562,7 @@ const Home = () => {
             </p>
             <div className="mb-6">
               <span className="text-3xl font-bold">Custom Pricing</span>
-              <p className="text-gray-400">Pause or cancel anytime</p>
+              {/* <p className="text-gray-400">Pause or cancel anytime</p> */}
             </div>
             <button
               className="bg-[#409F9C] text-white font-semibold py-3 px-6 rounded-full mb-8"
