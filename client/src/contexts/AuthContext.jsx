@@ -81,6 +81,9 @@ export const AuthProvider = ({ children }) => {
             // Fetch user data using the token
             const response = await api.get('/auth/me');
             const userData = response.data.data;
+            console.log('User data from API:', userData);
+            localStorage.setItem('user', JSON.stringify(userData));
+            setUser(userData);
             if(user.role !== 'admin'){
                 const subscriptionResponse = await api.get('/subscription/status');
                 const subscriptionStatus = subscriptionResponse.data.subscription.status;
@@ -89,9 +92,7 @@ export const AuthProvider = ({ children }) => {
                 }
             }
             
-            console.log('User data from API:', userData);
-            localStorage.setItem('user', JSON.stringify(userData));
-            setUser(userData);
+            
 
             return true;
         } catch (error) {
