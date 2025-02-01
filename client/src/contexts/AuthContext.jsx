@@ -9,6 +9,7 @@ const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [isSubscribed, setIsSubscribed] = useState(false);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
@@ -24,6 +25,15 @@ export const AuthProvider = ({ children }) => {
                 api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
                 const response = await api.get('/auth/me');
                 setUser(response.data.data);
+                if(response.data.data.role !== 'admin'){
+                    const subscriptionResponse = await api.get('/subscription/status');
+                    const subscriptionStatus = subscriptionResponse.data.subscription.status;
+                    if (subscriptionStatus === 'active') {
+                        setIsSubscribed(true);
+                    }
+                }
+                // console.log(subscriptionStatus);
+                // setIsSubscribed(subscriptionStatus);
             }
         } catch (error) {
             console.log(error);
@@ -44,6 +54,15 @@ export const AuthProvider = ({ children }) => {
             api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
             setUser(user);
             const returnUrl = localStorage.getItem("returnTo") || "/dashboard";
+            if(user.role !== 'admin'){
+                const subscriptionResponse = await api.get('/subscription/status');
+                const subscriptionStatus = subscriptionResponse.data.subscription.status;
+                if (subscriptionStatus === 'active') {
+                    setIsSubscribed(true);
+                }
+            }
+                
+            
       localStorage.removeItem("returnTo");
       navigate(returnUrl)
             return true;
@@ -62,6 +81,14 @@ export const AuthProvider = ({ children }) => {
             // Fetch user data using the token
             const response = await api.get('/auth/me');
             const userData = response.data.data;
+            if(user.role !== 'admin'){
+                const subscriptionResponse = await api.get('/subscription/status');
+                const subscriptionStatus = subscriptionResponse.data.subscription.status;
+                if (subscriptionStatus === 'active') {
+                    setIsSubscribed(true);
+                }
+            }
+            
             console.log('User data from API:', userData);
             localStorage.setItem('user', JSON.stringify(userData));
             setUser(userData);
@@ -82,6 +109,7 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
         delete api.defaults.headers.common['Authorization'];
         navigate('/login');
+        setIsSubscribed(false);
     };
 
     useEffect(() => {
@@ -103,7 +131,7 @@ export const AuthProvider = ({ children }) => {
     }, [navigate]);
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, loginWithGoogle, logout }}>
+        <AuthContext.Provider value={{ user, isSubscribed, loading, login, loginWithGoogle, logout }}>
             {!loading && children}
         </AuthContext.Provider>
     );

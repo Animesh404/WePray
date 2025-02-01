@@ -592,6 +592,9 @@ class PrayerModel {
       await connection.query("DELETE FROM prayer_reports WHERE prayer_id = ?", [
         id,
       ]);
+      await connection.query("DELETE FROM messages WHERE prayer_id = ?", [
+        id,
+      ]);
       const [result] = await connection.query(
         "DELETE FROM prayers WHERE id = ?",
         [id]

@@ -6,7 +6,11 @@ const passport = require('passport');
 const UserModel = require('./src/models/UserModel');
 const PrayerModel = require('./src/models/PrayerModel');
 const EventModel = require('./src/models/EventModel');
-const PReportModel = require('./src/models/PReportModel')
+const PReportModel = require('./src/models/PReportModel');
+const SubscriptionModel = require('./src/models/SubscriptionModel');
+const CommentModel = require('./src/models/CommentModel');
+const MessageModel = require('./src/models/MessageModel');
+const subscriptionController = require('./src/controllers/subscriptionController');
 require('dotenv').config();
 require('./src/config/passport');
 
@@ -18,6 +22,9 @@ async function initializeDatabase() {
         await PrayerModel.createSchema();
         await EventModel.createSchema();
         await PReportModel.createSchema();
+        // await CommentModel.createSchema();
+        await MessageModel.createSchema();
+        await SubscriptionModel.createSchema();
         console.log('All database schemas created successfully');
     } catch (error) {
         console.error('Database initialization failed:', error);
@@ -37,6 +44,11 @@ async function initializeServer() {
 }
 
 initializeServer();
+app.post('/api/subscription/webhook',
+    express.raw({ type: 'application/json' }),
+    subscriptionController.handleWebhook
+  );
+  
 // Middleware
 app.use(cors({
    origin: process.env.FRONTEND_URL,
