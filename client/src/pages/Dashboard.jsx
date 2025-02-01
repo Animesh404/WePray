@@ -149,7 +149,7 @@ const Dashboard = () => {
         setTotalRecMessages(messagesRec.data.data.total);
       }
 
-      // setTotalPages(Math.ceil(prayersRes.data.data.total / ITEMS_PER_PAGE));
+      setTotalPages(Math.ceil(prayersRes.data.data.total / ITEMS_PER_PAGE));
       // console.log("Received prayers data:", prayersRes.data.data.prayers);
 
       setEvents(
@@ -239,16 +239,19 @@ const Dashboard = () => {
       }
     }
   };
-
-  useEffect(() => {
-    if (messageInbox === "inbox" && totalRecMessages > 0) {
-      setTotalPages(Math.ceil(totalRecMessages / ITEMS_PER_PAGE));
-    } else if (messageInbox === "sent" && totalSentMessages > 0) {
-      setTotalPages(Math.ceil(totalSentMessages / ITEMS_PER_PAGE));
-    } else {
-      setTotalPages(Math.ceil(totalPrayers / ITEMS_PER_PAGE));
-    }
-  }, [messageInbox, totalRecMessages, totalSentMessages, totalPrayers]);
+useEffect(() => {
+  if (activeTab === "dashboard") {
+    setTotalPages(Math.ceil(totalPrayers / ITEMS_PER_PAGE));
+  } else if (messageInbox === "inbox" && activeTab !== "dashboard" && totalRecMessages > 0) {
+    setTotalPages(Math.ceil(totalRecMessages / ITEMS_PER_PAGE));
+  } else if (messageInbox === "sent" && activeTab !== "dashboard" && totalSentMessages > 0) {
+    setTotalPages(Math.ceil(totalSentMessages / ITEMS_PER_PAGE));
+  } else if (activeTab === "manage_users") {
+    setTotalPages(Math.ceil(users.length / ITEMS_PER_PAGE));
+  } else if (activeTab === "events") {
+    setTotalPages(Math.ceil(events.length / ITEMS_PER_PAGE));
+  }
+}, [messageInbox, totalRecMessages, totalSentMessages, totalPrayers, activeTab, users.length, events.length]);
   const handlePrayerSubmit = async (e) => {
     e.preventDefault();
     try {
