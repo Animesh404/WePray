@@ -26,13 +26,15 @@ export const AuthProvider = ({ children }) => {
         const response = await api.get("/auth/me");
         setUser(response.data.data);
         if (response.data.data.role !== "admin") {
-            const subscriptionResponse = await api.get("/subscription/status");
-            if (subscriptionResponse) {
-              const subscriptionStatus =
-                subscriptionResponse.data.subscription.status;
-              if (subscriptionStatus === "active") {
-                setIsSubscribed(true);
-              }
+            try {
+                const subscriptionResponse = await api.get("/subscription/status");
+                // Check if subscription and status exist before accessing
+                if (subscriptionResponse?.data?.subscription?.status === "active") {
+                    setIsSubscribed(true);
+                }
+            } catch (subscriptionError) {
+                console.log("No active subscription found");
+                setIsSubscribed(false);
             }
         }
         // console.log(subscriptionStatus);
@@ -58,13 +60,15 @@ export const AuthProvider = ({ children }) => {
       setUser(user);
       const returnUrl = localStorage.getItem("returnTo") || "/dashboard";
       if (user.role !== "admin") {
-        const subscriptionResponse = await api.get("/subscription/status");
-        if (subscriptionResponse) {
-          const subscriptionStatus =
-            subscriptionResponse.data.subscription.status;
-          if (subscriptionStatus === "active") {
-            setIsSubscribed(true);
-          }
+        try {
+            const subscriptionResponse = await api.get("/subscription/status");
+            // Check if subscription and status exist before accessing
+            if (subscriptionResponse?.data?.subscription?.status === "active") {
+                setIsSubscribed(true);
+            }
+        } catch (subscriptionError) {
+            console.log("No active subscription found");
+            setIsSubscribed(false);
         }
       }
 
@@ -78,37 +82,40 @@ export const AuthProvider = ({ children }) => {
 
   const loginWithGoogle = async (token) => {
     try {
-      console.log("LoginWithGoogle called with token:", token);
+        console.log("LoginWithGoogle called with token:", token);
 
-      localStorage.setItem("token", token);
-      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        localStorage.setItem("token", token);
+        api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-      // Fetch user data using the token
-      const response = await api.get("/auth/me");
-      const userData = response.data.data;
-      console.log("User data from API:", userData);
-      localStorage.setItem("user", JSON.stringify(userData));
-      setUser(userData);
-      if (userData.role !== "admin") {
-        const subscriptionResponse = await api.get("/subscription/status");
-        if (subscriptionResponse) {
-          const subscriptionStatus =
-            subscriptionResponse.data.subscription.status;
-          if (subscriptionStatus === "active") {
-            setIsSubscribed(true);
-          }
+        // Fetch user data using the token
+        const response = await api.get("/auth/me");
+        const userData = response.data.data;
+        console.log("User data from API:", userData);
+        localStorage.setItem("user", JSON.stringify(userData));
+        setUser(userData);
+        
+        if (userData.role !== "admin") {
+            try {
+                const subscriptionResponse = await api.get("/subscription/status");
+                // Check if subscription and status exist before accessing
+                if (subscriptionResponse?.data?.subscription?.status === "active") {
+                    setIsSubscribed(true);
+                }
+            } catch (subscriptionError) {
+                console.log("No active subscription found");
+                setIsSubscribed(false);
+            }
         }
-      }
 
-      return true;
+        return true;
     } catch (error) {
-      console.error("Google login error:", error);
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      navigate("/login");
-      throw error;
+        console.error("Google login error:", error);
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        navigate("/login");
+        throw error;
     }
-  };
+};
 
   const logout = () => {
     localStorage.removeItem("token");
