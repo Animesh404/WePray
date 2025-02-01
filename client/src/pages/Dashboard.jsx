@@ -109,7 +109,7 @@ const Dashboard = () => {
           : api.get(`/prayers?page=${page}&limit=${ITEMS_PER_PAGE}`),
         api.get("/events"),
         user.role == "admin" || user.role == "coordinator"
-          ? api.get("/users/members")
+          ? api.get(`/users/members?page=${page}&limit=${ITEMS_PER_PAGE}`)
           : null,
         user.role === "admin" ? api.get("/users/coordinators") : null,
         user.role !== "admin" && isSubscribed
@@ -125,7 +125,7 @@ const Dashboard = () => {
       ]);
       // console.log(messagesByUser);
       // console.log(messagesToUser);
-      // console.log(messagesSent);
+      // console.log(messagesSent);      
       setPrayers(
         Array.isArray(prayersRes.data.data.prayers)
           ? prayersRes.data.data.prayers
@@ -239,7 +239,6 @@ const Dashboard = () => {
       }
     }
   };
-  console.log(Math.ceil(users.length / ITEMS_PER_PAGE));
 useEffect(() => {
   if (activeTab === "dashboard") {
     setTotalPages(Math.ceil(totalPrayers / ITEMS_PER_PAGE));
