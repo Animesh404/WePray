@@ -84,7 +84,7 @@ export const AuthProvider = ({ children }) => {
             console.log('User data from API:', userData);
             localStorage.setItem('user', JSON.stringify(userData));
             setUser(userData);
-            if(user.role !== 'admin'){
+            if(userData.role !== 'admin'){
                 const subscriptionResponse = await api.get('/subscription/status');
                 const subscriptionStatus = subscriptionResponse.data.subscription.status;
                 if (subscriptionStatus === 'active') {
