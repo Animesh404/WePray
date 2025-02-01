@@ -239,6 +239,7 @@ const Dashboard = () => {
       }
     }
   };
+  console.log(Math.ceil(users.length / ITEMS_PER_PAGE));
 useEffect(() => {
   if (activeTab === "dashboard") {
     setTotalPages(Math.ceil(totalPrayers / ITEMS_PER_PAGE));
