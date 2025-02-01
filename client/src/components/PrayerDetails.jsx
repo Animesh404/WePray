@@ -94,7 +94,7 @@ const PrayerDetails = () => {
         {(!isSubscribed && prayer.user_id) &&
         (<button
           type="submit"
-          onClick={() => window.location.replace("/#subscribe")}
+          onClick={() => user ? window.location.replace("/#subscription") : window.location.replace("/login")}
           className="w-md flex justify-center m-4 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#409F9C] hover:bg-[#368B88] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#409F9C]"
         >
           Subscribe to view or send messages

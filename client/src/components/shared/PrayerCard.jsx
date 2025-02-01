@@ -65,6 +65,19 @@ const PrayerCard = ({
     link: `https://wipray.com/prayers/${prayerID}`,
   };
 
+  const handleShare = () => {
+    // Replace this URL with your actual prayer URL/link
+    const linkToCopy = `https://wipray.com/prayers/${prayerID}`;
+    
+    navigator.clipboard.writeText(linkToCopy)
+      .then(() => {
+        // Optional: Add some visual feedback that copy succeeded
+        alert("Link copied to clipboard!");
+      })
+      .catch((err) => {
+        console.error('Failed to copy:', err);
+      });
+  };
   const facebookShare = (prayerDetails) => {
     const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
       prayerDetails.link
@@ -229,7 +242,7 @@ const PrayerCard = ({
                 Bookmark
               </button>
 
-              <button className="w-full px-3 py-2 mb-2 border-gray-300 text-sm text-left bg-gray-100 rounded-md flex items-center">
+              <button className="w-full px-3 py-2 mb-2 border-gray-300 text-sm text-left bg-gray-100 rounded-md flex items-center" onClick={handleShare}>
                 <Share2 className="h-4 w-4 mr-2" />
                 Share this prayer
               </button>
