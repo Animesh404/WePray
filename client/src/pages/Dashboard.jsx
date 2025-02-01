@@ -25,6 +25,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [users, setUsers] = useState([]);
+  const [endsAt, setEndsAt] = useState("");
   const [prayerMessage, setPrayerMessage] = useState("");
   const [prayerID, setPrayerID] = useState(null);
   const navigate = useNavigate();
@@ -33,7 +34,7 @@ const Dashboard = () => {
   // const [messagePages, setMessagePages] = useState(1);
   const [messagesByUser, setMessagesByUser] = useState([]);
   const [messagesToUser, setMessagesToUser] = useState([]);
-  const [messageInbox, setMessageInbox] = useState("");
+  const [messageInbox, setMessageInbox] = useState("inbox");
 
   // States
   const [prayers, setPrayers] = useState([]);
@@ -67,6 +68,26 @@ const Dashboard = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // console.log(subscribed);
+  const handleCancelSub = async () => {
+    try {
+      await api.post("/subscription/cancel", user.id);
+      const subStatus = await api.get("/subscription/subStatus");
+        if (subStatus.data.subscription.status === "canceled") {
+          const endsat = new Date(
+            subStatus.data.subscription.expires_at
+          ).toLocaleString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+          });
+          setEndsAt(endsat);
+        }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const fetchDashboardData = async (page = 1) => {
     try {
       setLoading(true);
@@ -315,7 +336,7 @@ const Dashboard = () => {
     setCurrentPage(1);
 
     // Set message inbox based on tab
-    if (tab === "dashboard") {
+    if (tab === "dashboard" || tab === "prayer_requests") {
       setMessageInbox("");
     } else if (tab === "comments") {
       setMessageInbox("inbox");
@@ -602,8 +623,164 @@ const Dashboard = () => {
         );
       case "manage_users":
         return renderUserManagementSection();
+      case "subscription":
+        return (
+          <div className="bg-white p-8 rounded-3xl h-full mb-4">
+            <h2 className="text-2xl font-bold mb-4 relative z-10">
+              Premium Plan
+            </h2>
+            <p className="text-gray-600 mb-6 relative z-10">
+              Ideal for those seeking deeper engagement and exclusive privileges
+              within the community.
+            </p>
+            <div className="mb-6">
+              <span className="text-4xl font-bold">$39/m</span>
+              {/* <p className="text-gray-400">Pause or cancel anytime</p> */}
+            </div>
+            <>
+              
+                <div className="flex flex-col ">
+                  <button className="bg-[#B4D4D3]/40 text-black max-w-md font-semibold py-3 px-6 rounded-full mb-1 cursor-not-allowed">
+                    Active
+                  </button>
+                  <button
+                    className={`font-semibold py-3 px-6 rounded-full max-w-md mb-8 ${
+                      endsAt !== ""
+                        ? "bg-gray-400 text-white cursor-not-allowed"
+                        : "bg-[#409F9C] text-white cursor-pointer"
+                    }`}
+                    onClick={handleCancelSub}
+                    disabled={endsAt !== ""}
+                  >
+                    {endsAt !== ""
+                      ? `Subscription ends on ${endsAt}`
+                      : "Cancel"}
+                  </button>
+                </div>
+            </>
+
+            <ul className="space-y-4">
+              <li className="flex items-center">
+                <svg
+                  className="w-5 h-5 mr-2 text-[#409F9C]"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                Everything in the Free Plan, plus:
+              </li>
+              <li className="flex items-center">
+                <svg
+                  className="min-w-5 h-5 mr-2 text-[#409F9C]"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                Access to exclusive private prayer groups—join or create your
+                own.
+              </li>
+              {/* Add other premium features */}
+              <li className="flex items-center">
+                <svg
+                  className="min-w-5 h-5 mr-2 text-[#409F9C]"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                Receive personalized Bible promises tailored to uplift and
+                inspire.
+              </li>
+              <li className="flex items-center">
+                <svg
+                  className="min-w-5 h-5 mr-2 text-[#409F9C]"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                Stay spiritually enriched with daily prayer devotionals.
+              </li>
+              <li className="flex items-center">
+                <svg
+                  className="min-w-5 h-5 mr-2 text-[#409F9C]"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                Gain insights with an advanced analytics dashboard.
+              </li>
+              <li className="flex items-center">
+                <svg
+                  className="min-w-5 h-5 mr-2 text-[#409F9C]"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                Receive private messages of encouragement from fellow users.
+              </li>
+              <li className="flex items-center">
+                <svg
+                  className="min-w-5 h-5 mr-2 text-[#409F9C]"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                Manage your prayer experience by editing or deleting prayer
+                requests and praises.
+              </li>
+            </ul>
+          </div>
+        )
       case "prayer_requests":
-        setMessageInbox("");
+        // setMessageInbox("");
         return (
           <div className="bg-white shadow overflow-hidden sm:rounded-lg">
             <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
@@ -1047,11 +1224,11 @@ const Dashboard = () => {
                   ? "bg-[#409F9C] text-white"
                   : "hover:bg-gray-300"
               }`}
-              onClick={() => setActiveTab("prayer_requests")}
+              onClick={() => handleTabChange("prayer_requests")}
             >
               Prayer Requests
             </li>
-          )}
+           )} 
           {user.role !== 'admin' && (
             <li
             className={`mb-2 p-2 rounded cursor-pointer ${
@@ -1062,6 +1239,18 @@ const Dashboard = () => {
             onClick={() => handleTabChange("comments")}
           >
             Comments and Reactions
+          </li>
+          )}
+          {user.role !== 'admin' && (
+            <li
+            className={`mb-2 p-2 rounded cursor-pointer ${
+              activeTab === "subscription"
+                ? "bg-[#409F9C] text-white"
+                : "hover:bg-gray-300"
+            }`}
+            onClick={() => setActiveTab("subscription")}
+          >
+            Manage Subscription
           </li>
           )}
           
@@ -1134,6 +1323,7 @@ const Dashboard = () => {
                   Manage Users
                 </li>
               )}
+              {(user.role === "admin" || user.role === "coordinator") && (
               <li
                 onClick={() => {
                   setActiveTab("prayer_requests");
@@ -1148,6 +1338,7 @@ const Dashboard = () => {
               >
                 Prayer Requests
               </li>
+              )}
               {user.role !== 'admin' && (
                 <li
                 onClick={() => {
@@ -1162,6 +1353,22 @@ const Dashboard = () => {
                                     }`}
               >
                 Comments and Reactions
+              </li>
+              )}
+              {user.role !== 'admin' && (
+                <li
+                onClick={() => {
+                  setActiveTab("subscription");
+                  setIsMobileMenuOpen(false);
+                }}
+                className={`p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors
+                                    ${
+                                      activeTab === "subscription"
+                                        ? "bg-[#409F9C] text-white hover:bg-[#409F9C]"
+                                        : ""
+                                    }`}
+              >
+                Manage Subscription
               </li>
               )}
               
@@ -1210,7 +1417,7 @@ const Dashboard = () => {
 
         {/* Dynamic Content based on active tab */}
         {renderContent()}
-        <PaginationControls />
+        {activeTab !== "subscription" && <PaginationControls />}
 
         {/* Modals */}
         {showEditForm && (
