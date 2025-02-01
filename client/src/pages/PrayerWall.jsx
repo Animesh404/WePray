@@ -67,7 +67,8 @@ const PrayerWall = () => {
         );
         return [...prevPrayers, ...newPrayers];
       });
-      console.log(selectedCategories);
+
+      // console.log(prayers[0].user_id);
       // If fewer prayers are returned than the limit, we've fetched all pages
       if ( fetchedPrayers.length < 10)
         setHasMore(false);
@@ -337,6 +338,7 @@ const PrayerWall = () => {
                   content={prayer.message}
                   prayerID={prayer.id}
                   type={prayer.type}
+                  userId={prayer.user_id}
                   // parseInt(prayer.pray_count + 1, 10))}
                 />
               ))}
@@ -654,6 +656,7 @@ const PrayerWall = () => {
                 }
                 mode="form"
                 required={true}
+                
               />
               <div>
                 <label

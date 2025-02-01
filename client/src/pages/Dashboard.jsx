@@ -13,13 +13,14 @@ import {
   faBars,
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
+import MessageCard from "../components/shared/MessageCard";
 
 const ITEMS_PER_PAGE = 50;
 
 // Components
 
 const Dashboard = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, isSubscribed } = useAuth();
   const [activeTab, setActiveTab] = useState("dashboard");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -29,6 +30,10 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  // const [messagePages, setMessagePages] = useState(1);
+  const [messagesByUser, setMessagesByUser] = useState([]);
+  const [messagesToUser, setMessagesToUser] = useState([]);
+  const [messageInbox, setMessageInbox] = useState("");
 
   // States
   const [prayers, setPrayers] = useState([]);
@@ -39,6 +44,9 @@ const Dashboard = () => {
     totalEvents: 0,
     prayedForYou: 0,
   });
+  const [totalPrayers, setTotalPrayers] = useState(1);
+  const [totalRecMessages, setTotalRecMessages] = useState(1);
+  const [totalSentMessages, setTotalSentMessages] = useState(1);
 
   // Modal states and forms
   const [showPrayerForm, setShowPrayerForm] = useState(false);
@@ -58,34 +66,70 @@ const Dashboard = () => {
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  // console.log(subscribed);
   const fetchDashboardData = async (page = 1) => {
     try {
       setLoading(true);
       setError(null);
-
-      const [prayersRes, eventsRes, usersRes, coordinatorsRes] =
-        await Promise.all([
-          user.role == "admin" || user.role == "coordinator"
-            ? api.get(
-                `/prayers?page=${page}&limit=${ITEMS_PER_PAGE}&sort=created_at:desc`
-              )
-            : api.get(
-                `/prayers?page=${page}&limit=${ITEMS_PER_PAGE}`
-              ),
-          api.get("/events"),
-          user.role == "admin" || user.role == "coordinator"
-            ? api.get("/users/members")
-            : null,
-          user.role === "admin" ? api.get("/users/coordinators") : null,
-        ]);
-
+      //  = await api.get('/subscription/status'); ;
+      // console.log(isSubscribed);
+      const [
+        prayersRes,
+        eventsRes,
+        usersRes,
+        coordinatorsRes,
+        messagesRec,
+        messagesSent,
+      ] = await Promise.all([
+        user.role == "admin" || user.role == "coordinator"
+          ? api.get(
+              `/prayers?page=${page}&limit=${ITEMS_PER_PAGE}&sort=created_at:desc`
+            )
+          : api.get(`/prayers?page=${page}&limit=${ITEMS_PER_PAGE}`),
+        api.get("/events"),
+        user.role == "admin" || user.role == "coordinator"
+          ? api.get("/users/members")
+          : null,
+        user.role === "admin" ? api.get("/users/coordinators") : null,
+        user.role !== "admin" && isSubscribed
+          ? api.get(
+              `/messages/received/${user.id}?page=${page}&limit=${ITEMS_PER_PAGE}`
+            )
+          : null,
+        user.role !== "admin" && isSubscribed
+          ? api.get(
+              `/messages/sent/${user.id}?page=${page}&limit=${ITEMS_PER_PAGE}`
+            )
+          : null,
+      ]);
+      // console.log(messagesByUser);
+      // console.log(messagesToUser);
+      // console.log(messagesSent);
       setPrayers(
         Array.isArray(prayersRes.data.data.prayers)
           ? prayersRes.data.data.prayers
           : []
       );
-      setTotalPages(Math.ceil(prayersRes.data.data.total / ITEMS_PER_PAGE));
-      console.log("Received prayers data:", prayersRes.data.data.prayers);
+      setTotalPrayers(prayersRes.data.data.total);
+      if (messagesSent) {
+        setMessagesByUser(
+          Array.isArray(messagesSent.data.data.messages)
+            ? messagesSent.data.data.messages
+            : []
+        );
+        setTotalSentMessages(messagesSent.data.data.total);
+      }
+      if (messagesRec) {
+        setMessagesToUser(
+          Array.isArray(messagesRec.data.data.messages)
+            ? messagesRec.data.data.messages
+            : []
+        );
+        setTotalRecMessages(messagesRec.data.data.total);
+      }
+
+      // setTotalPages(Math.ceil(prayersRes.data.data.total / ITEMS_PER_PAGE));
+      // console.log("Received prayers data:", prayersRes.data.data.prayers);
 
       setEvents(
         Array.isArray(eventsRes.data.data.events)
@@ -107,7 +151,10 @@ const Dashboard = () => {
           prayersRes.data.data.prayers.filter((p) => p.status === "pending")
             ?.length || 0,
         totalEvents: eventsRes.data.data.events.length,
-        prayedForYou: prayersRes.data.data.prayers.reduce((acc, prayer) => acc + (prayer.pray_count || 0), 0),
+        prayedForYou: prayersRes.data.data.prayers.reduce(
+          (acc, prayer) => acc + (prayer.pray_count || 0),
+          0
+        ),
       });
     } catch (error) {
       console.error("Dashboard data error:", error);
@@ -122,9 +169,10 @@ const Dashboard = () => {
   }, [currentPage, user.role]);
 
   const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
+    if (newPage > 0 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
   };
-
   const handleMakeCoordinator = async (userId) => {
     try {
       const newRole =
@@ -171,6 +219,15 @@ const Dashboard = () => {
     }
   };
 
+  useEffect(() => {
+    if (messageInbox === "inbox" && totalRecMessages > 0) {
+      setTotalPages(Math.ceil(totalRecMessages / ITEMS_PER_PAGE));
+    } else if (messageInbox === "sent" && totalSentMessages > 0) {
+      setTotalPages(Math.ceil(totalSentMessages / ITEMS_PER_PAGE));
+    } else {
+      setTotalPages(Math.ceil(totalPrayers / ITEMS_PER_PAGE));
+    }
+  }, [messageInbox, totalRecMessages, totalSentMessages, totalPrayers]);
   const handlePrayerSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -249,6 +306,19 @@ const Dashboard = () => {
     } catch (error) {
       console.log(error);
       setError("Failed to update prayer status");
+    }
+  };
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    // Reset page when changing tabs
+    setCurrentPage(1);
+
+    // Set message inbox based on tab
+    if (tab === "dashboard") {
+      setMessageInbox("");
+    } else if (tab === "comments") {
+      setMessageInbox("inbox");
     }
   };
 
@@ -385,11 +455,13 @@ const Dashboard = () => {
                 <div className="text-white">Total Prayers</div>
                 <div className="text-3xl text-white">{stats.totalPrayers}</div>
               </div>
-              {(user.role === "member") && (
-              <div className="bg-[#409F9C] text-white p-5 rounded-lg">
-                <div className="text-white">People Prayed for You</div>
-                <div className="text-3xl text-white">{stats.prayedForYou}</div>
-              </div>
+              {user.role === "member" && (
+                <div className="bg-[#409F9C] text-white p-5 rounded-lg">
+                  <div className="text-white">People Prayed for You</div>
+                  <div className="text-3xl text-white">
+                    {stats.prayedForYou}
+                  </div>
+                </div>
               )}
               {(user.role === "admin" || user.role === "coordinator") && (
                 <div className="bg-[#409F9C] text-white p-5 rounded-lg">
@@ -438,11 +510,11 @@ const Dashboard = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       Status
                     </th>
-                    {(user.role === "admin" || user.role === "coordinator") && (
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                        Actions
-                      </th>
-                    )}
+                    {/* {(user.role === "admin" || user.role === "coordinator") && ( */}
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Actions
+                    </th>
+                    {/* )} */}
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -488,13 +560,15 @@ const Dashboard = () => {
                           {prayer.status}
                         </span>
                       </td>
-                      {(user.role === "admin" ||
-                        user.role === "coordinator") && (
-                        <td
-                          data-label="Actions"
-                          className="px-6 py-4 whitespace-nowrap flex flex-col text-sm"
-                        >
-                          {prayer.status !== "approved" && (
+                      {/* {(user.role === "admin" ||
+                        user.role === "coordinator") && ( */}
+                      <td
+                        data-label="Actions"
+                        className="px-6 py-4 whitespace-nowrap flex flex-col text-sm"
+                      >
+                        {(user.role === "admin" ||
+                          user.role === "coordinator") &&
+                          prayer.status !== "approved" && (
                             <button
                               onClick={() =>
                                 handlePrayerStatusUpdate(prayer.id, "approved")
@@ -504,20 +578,21 @@ const Dashboard = () => {
                               Approve
                             </button>
                           )}
-                          <button
-                            onClick={() => handlePrayerDelete(prayer.id)}
-                            className="px-3 py-1 bg-red-500 text-white text-xs rounded-md"
-                          >
-                            Delete
-                          </button>
-                          <button
-                            onClick={() => handlePrayerEdit(prayer.id)}
-                            className="px-4 py-1 bg-yellow-500 text-xs text-white rounded-md"
-                          >
-                            Edit
-                          </button>
-                        </td>
-                      )}
+
+                        <button
+                          onClick={() => handlePrayerDelete(prayer.id)}
+                          className="px-3 py-1 bg-red-500 text-white text-xs rounded-md"
+                        >
+                          Delete
+                        </button>
+                        <button
+                          onClick={() => handlePrayerEdit(prayer.id)}
+                          className="px-4 py-1 bg-yellow-500 text-xs text-white rounded-md"
+                        >
+                          Edit
+                        </button>
+                      </td>
+                      {/* )} */}
                     </tr>
                   ))}
                 </tbody>
@@ -528,6 +603,7 @@ const Dashboard = () => {
       case "manage_users":
         return renderUserManagementSection();
       case "prayer_requests":
+        setMessageInbox("");
         return (
           <div className="bg-white shadow overflow-hidden sm:rounded-lg">
             <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
@@ -659,6 +735,47 @@ const Dashboard = () => {
             </table>
           </div>
         );
+      case "comments":
+        return (
+          <div className="flex flex-col items-center justify center">
+            <div className="flex flex-row">
+              <button
+                className="px-4 py-1 bg-green-500 text-xs text-white rounded-md"
+                onClick={() => setMessageInbox("inbox")}
+              >
+                Received Messages
+              </button>
+              <button
+                className="px-4 py-1 bg-green-500 text-xs text-white rounded-md"
+                onClick={() => setMessageInbox("sent")}
+              >
+                Sent Messages
+              </button>
+            </div>
+            {(() => {
+              if (messageInbox === "inbox") {
+                return messagesToUser.map((message) => (
+                  <MessageCard
+                    key={message.id}
+                    content={message.content}
+                    userName={message.user_name}
+                    createdAt={message.created_at}
+                  />
+                ));
+              } else if (messageInbox === "sent") {
+                return messagesByUser.map((message) => (
+                  <MessageCard
+                    key={message.id}
+                    content={message.content}
+                    createdAt={message.created_at}
+                  />
+                ));
+              }
+              return null;
+            })()}
+          </div>
+        );
+
       case "events":
         return (
           <div className="bg-white shadow overflow-hidden sm:rounded-lg">
@@ -894,7 +1011,7 @@ const Dashboard = () => {
                 ? "bg-[#409F9C] text-white"
                 : "hover:bg-gray-300"
             }`}
-            onClick={() => setActiveTab("dashboard")}
+            onClick={() => handleTabChange("dashboard")}
           >
             Dashboard
           </li>
@@ -935,16 +1052,19 @@ const Dashboard = () => {
               Prayer Requests
             </li>
           )}
-          <li
+          {user.role !== 'admin' && (
+            <li
             className={`mb-2 p-2 rounded cursor-pointer ${
               activeTab === "comments"
                 ? "bg-[#409F9C] text-white"
                 : "hover:bg-gray-300"
             }`}
-            onClick={() => setActiveTab("comments")}
+            onClick={() => handleTabChange("comments")}
           >
             Comments and Reactions
           </li>
+          )}
+          
           <li
             className={`mb-2 p-2 rounded cursor-pointer ${
               activeTab === "events"
@@ -1028,6 +1148,23 @@ const Dashboard = () => {
               >
                 Prayer Requests
               </li>
+              {user.role !== 'admin' && (
+                <li
+                onClick={() => {
+                  setActiveTab("comments");
+                  setIsMobileMenuOpen(false);
+                }}
+                className={`p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors
+                                    ${
+                                      activeTab === "comments"
+                                        ? "bg-[#409F9C] text-white hover:bg-[#409F9C]"
+                                        : ""
+                                    }`}
+              >
+                Comments and Reactions
+              </li>
+              )}
+              
               <li
                 onClick={() => {
                   setActiveTab("events");
@@ -1056,12 +1193,13 @@ const Dashboard = () => {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <span>
-          <h1 className="text-2xl font-semibold">Welcome, {user.name}</h1>
-          <h2 className=" p-1 text-xl font-bold">
-  Note: Site is under maintenance, some features may not work as intended.
-</h2>
+            <h1 className="text-2xl font-semibold">Welcome, {user.name}</h1>
+            {/* <h2 className=" p-1 text-xl font-bold">
+              Note: Site is under maintenance, some features may not work as
+              intended.
+            </h2> */}
           </span>
-          
+
           <button
             onClick={logout}
             className="bg-red-500 text-white px-4 py-2 rounded-md"

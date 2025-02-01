@@ -38,13 +38,13 @@ router.get('/stats', isAuth, isCoordinator, PrayerController.getStats);
 router.get('/pending', isAuth, isCoordinator, PrayerController.getPending);
 router.get('/:id', PrayerController.getById);
 router.put('/:id/prayCount', PrayerController.updatePrayerCount);
-router.put('/:id/message', isAuth, isAdmin, PrayerController.updateMessage);
+router.put('/:id/message', isAuth, PrayerController.updateMessage);
 router.put('/:id/status', 
    isAuth, 
    isCoordinator, 
    validate(prayerValidations.updateStatus), 
    PrayerController.updateStatus
 );
-router.delete('/:id', isAuth, isCoordinator, PrayerController.delete);
+router.delete('/:id', isAuth,  PrayerController.delete);
 
 module.exports = router;

@@ -140,6 +140,8 @@ class PrayerController {
    static async updateMessage(req, res) {
     try {
         const { message, categories } = req.body;
+        const prayerId = req.params.id;
+        const userId = req.user.id; // Assuming you have user info in req.user from auth middleware
         
         if (!message) {
             return res.status(400).json({
@@ -148,19 +150,30 @@ class PrayerController {
             });
         }
 
-        // Update message
-        const updatedPrayer = await PrayerModel.updateMessage(req.params.id, message);
+        // First check if prayer exists and user owns it
+        const prayer = await PrayerModel.findById(prayerId);
         
-        if (!updatedPrayer) {
+        if (!prayer) {
             return res.status(404).json({
                 success: false,
                 message: 'Prayer request not found'
             });
         }
 
+        // Check ownership or admin status
+        if (prayer.user_id !== userId && req.user.role !== 'admin' && req.user.role !== 'coordinator') {
+            return res.status(403).json({
+                success: false,
+                message: 'Not authorized to update this prayer request'
+            });
+        }
+
+        // Update message
+        const updatedPrayer = await PrayerModel.updateMessage(prayerId, message);
+
         // Update categories if provided
         if (categories) {
-            await PrayerModel.updateCategories(req.params.id, categories);
+            await PrayerModel.updateCategories(prayerId, categories);
         }
 
         res.json({
@@ -294,6 +307,24 @@ static async updateCategories(req, res) {
 
    static async delete(req, res) {
     try {
+        const prayerId = req.params.id;
+        const userId = req.user.id;
+        const prayer = await PrayerModel.findById(prayerId);
+        
+        if (!prayer) {
+            return res.status(404).json({
+                success: false,
+                message: 'Prayer request not found'
+            });
+        }
+
+        // Check ownership or admin status
+        if (prayer.user_id !== userId && req.user.role !== 'admin' && req.user.role !== 'coordinator') {
+            return res.status(403).json({
+                success: false,
+                message: 'Not authorized to update this prayer request'
+            });
+        }
         const deleted = await PrayerModel.delete(req.params.id);
         
         if (!deleted) {

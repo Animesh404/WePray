@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import PrayerCardHeader from "./PrayerCardHeader";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import api from "../../utils/axios";
 import logo from "../../assets/logo.png";
 import {
@@ -15,6 +15,7 @@ import {
   Facebook,
   Twitter,
   Link,
+  MessageSquareMore,
 } from "lucide-react";
 
 const PrayerCard = ({
@@ -25,6 +26,7 @@ const PrayerCard = ({
   createdAt,
   prayerCount: initialPrayerCount,
   prayerID,
+  userId,
   type,
   logoUrl,
 }) => {
@@ -53,9 +55,11 @@ const PrayerCard = ({
   const [logoError, setLogoError] = useState(false);
   const [shouldShowMore, setShouldShowMore] = useState(false);
   const contentRef = useRef(null);
+  const navigate = useNavigate();
+  const { id } = useParams();
   // const [reported, setReported] = useState(false);
   // console.log(categories);
-
+  // console.log(userId);
   const prayerDetails = {
     message: content,
     link: `https://wipray.com/prayers/${prayerID}`,
@@ -120,6 +124,10 @@ const PrayerCard = ({
     }
   };
 
+  const handleComment = () => {
+    navigate(`/prayers/${prayerID}`);
+  };
+
   const handleLogoError = () => {
     setLogoError(true);
     console.warn("Failed to load logo image:", logoUrl);
@@ -171,17 +179,28 @@ const PrayerCard = ({
         </p>
 
         {type === "prayer" && (
-          <button
-            className={`mt-4 px-2 py-1 md:px-4 md:py:2 text-sm rounded-md ${
-              isPrayed
-                ? "border bg-gray-200 border-gray-500 text-gray-700"
-                : "bg-gray-200 border-gray-500 text-gray-700 hover:bg-gray-200"
-            }`}
-            onClick={handlePray}
-            disabled={isPrayed}
-          >
-            {prayedText}
-          </button>
+          <div>
+            <button
+              className={`mt-4 px-2 py-1 md:px-4 md:py:2 text-sm rounded-md ${
+                isPrayed
+                  ? "border bg-gray-200 border-gray-500 text-gray-700"
+                  : "bg-gray-200 border-gray-500 text-gray-700 hover:bg-gray-200"
+              }`}
+              onClick={handlePray}
+              disabled={isPrayed}
+            >
+              {prayedText}
+            </button>
+            {!id && userId && (
+              <button
+                className=" px-3 py-2 m-2 border-gray-300 text-sm text-left bg-gray-100 rounded-md flex items-center"
+                onClick={handleComment}
+              >
+                <MessageSquareMore className="h-4 w-4" />
+                Message
+              </button>
+            )}
+          </div>
         )}
 
         <div className="flex items-center justify-center gap-1">
@@ -244,13 +263,15 @@ const PrayerCard = ({
               Flag as inappropriate
             </button>
           </a>
-
+          {/* {/* {!id && ( */}
+          {!id && (
           <a className="text-gray-800" href={`/prayers/${prayerID}`}>
             <button className="w-full px-3 py-2 mb-2 border-gray-300 text-sm text-left bg-gray-100 rounded-md flex items-center">
               <Info className="h-4 w-4 mr-2" />
               {type} details
             </button>
           </a>
+          )}
         </div>
       )}
 
