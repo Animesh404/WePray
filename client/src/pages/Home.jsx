@@ -414,7 +414,7 @@ const Home = () => {
                   <button className="bg-[#B4D4D3]/40 text-black font-semibold py-3 px-6 rounded-full mb-1 cursor-not-allowed">
                     {subButtonText}
                   </button>
-                  <button
+                  {/* <button
                     className={`font-semibold py-3 px-6 rounded-full mb-8 ${
                       endsAt !== ""
                         ? "bg-gray-400 text-white cursor-not-allowed"
@@ -426,7 +426,7 @@ const Home = () => {
                     {endsAt !== ""
                       ? `Subscription ends on ${endsAt}`
                       : "Cancel"}
-                  </button>
+                  </button> */}
                 </div>
               )}
             </>
