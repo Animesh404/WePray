@@ -240,7 +240,7 @@ const Dashboard = () => {
     }
   };
 useEffect(() => {
-  if (activeTab === "dashboard") {
+  if (activeTab === "dashboard" || activeTab === "prayer_requests" ) {
     setTotalPages(Math.ceil(totalPrayers / ITEMS_PER_PAGE));
   } else if (messageInbox === "inbox" && activeTab !== "dashboard" && totalRecMessages > 0) {
     setTotalPages(Math.ceil(totalRecMessages / ITEMS_PER_PAGE));
