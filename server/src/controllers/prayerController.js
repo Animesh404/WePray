@@ -72,13 +72,14 @@ class PrayerController {
                 : null;
             // console.log(categories);
                 
-            const {prayers, total} = await PrayerModel.getAllApprovedPrayers(page, limit, categories);
+            const {prayers, total, total_pray_count} = await PrayerModel.getAllApprovedPrayers(page, limit, categories);
             
             res.json({
                 success: true,
                 data: {
                     prayers,
                     total,
+                    total_pray_count
                 }
             });
         } catch (error) {

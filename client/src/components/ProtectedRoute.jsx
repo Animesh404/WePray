@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import PropTypes from 'prop-types';
 
 const ProtectedRoute = ({ children, roles = [] }) => {
-    const { user, loading, isSubscribed } = useAuth();
+    const { user, loading } = useAuth();
     // console.log(isSubscribed);
     // const user = localStorage.get('user');
     const location = useLocation();
@@ -17,9 +17,9 @@ const ProtectedRoute = ({ children, roles = [] }) => {
         return <Navigate to="/login" state={{ from: location }} replace />;
     }
 
-    if (!isSubscribed && user.role !== 'admin') {
-        return <Navigate to="/#subscription" replace />;    
-    }
+    // if (!isSubscribed && user.role !== 'admin') {
+    //     return <Navigate to="/#subscription" replace />;    
+    // }
     if (roles.length > 0 && !roles.includes(user.role)) {
         return <Navigate to="/unauthorized" replace />;
     }
