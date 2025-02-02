@@ -77,7 +77,8 @@ const Home = () => {
         }
       }
 
-      const fetchedPrayerCount = prayersResponse.data?.data?.total || 0;
+      const fetchedPrayerCount = prayersResponse.data?.data?.total_pray_count || 0;
+      // console.log(prayersResponse.data?.data?.);
       const fetchedPraiseCount = praisesResponse.data?.data?.total || 0;
 
       setPrayerCount(fetchedPrayerCount);
@@ -420,7 +421,7 @@ const Home = () => {
                         ? "bg-gray-400 text-white cursor-not-allowed"
                         : "bg-[#409F9C] text-white cursor-pointer"
                     }`}
-                    onClick={handleCancelSub}
+                    onClick={handleCancelSub}s
                     disabled={endsAt !== ""}
                   >
                     {endsAt !== ""

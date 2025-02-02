@@ -338,7 +338,6 @@ class PrayerModel {
     try {
       const offset = (page - 1) * limit;
       let queryParams = [];
-      // console.log("Categories received in model:", categories);
 
       let query = `
             SELECT 
@@ -355,7 +354,9 @@ class PrayerModel {
                 AND p.visibility = 1`;
 
       let countQuery = `
-            SELECT COUNT(DISTINCT p.id) AS count
+            SELECT 
+                COUNT(DISTINCT p.id) AS count,
+                SUM(p.pray_count) AS total_pray_count
             FROM prayers p
             LEFT JOIN prayer_categories pc ON p.id = pc.prayer_id
             LEFT JOIN categories c ON pc.category_id = c.id
@@ -398,9 +399,6 @@ class PrayerModel {
       // Add limit and offset to params
       queryParams.push(limit, offset);
 
-      // console.log("Final query:", query);
-      // console.log("Query params:", queryParams);
-
       // Execute queries
       const [prayers] = await pool.query(query, queryParams);
 
@@ -418,10 +416,10 @@ class PrayerModel {
           : [];
       });
 
-      // console.log("Prayers found:", prayers.length);
       return {
         prayers,
         total: total[0].count,
+        total_pray_count: total[0].total_pray_count
       };
     } catch (error) {
       console.error("Error in getAllApprovedPrayers:", error);

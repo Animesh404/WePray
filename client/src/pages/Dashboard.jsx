@@ -14,6 +14,7 @@ import {
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import MessageCard from "../components/shared/MessageCard";
+import StripeButton from "../components/shared/StripeButton";
 
 const ITEMS_PER_PAGE = 50;
 
@@ -72,18 +73,18 @@ const Dashboard = () => {
     try {
       await api.post("/subscription/cancel", user.id);
       const subStatus = await api.get("/subscription/subStatus");
-        if (subStatus.data.subscription.status === "canceled") {
-          const endsat = new Date(
-            subStatus.data.subscription.expires_at
-          ).toLocaleString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-            hour: "numeric",
-            minute: "2-digit",
-          });
-          setEndsAt(endsat);
-        }
+      if (subStatus.data.subscription.status === "canceled") {
+        const endsat = new Date(
+          subStatus.data.subscription.expires_at
+        ).toLocaleString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+        });
+        setEndsAt(endsat);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -125,7 +126,7 @@ const Dashboard = () => {
       ]);
       // console.log(messagesByUser);
       // console.log(messagesToUser);
-      // console.log(messagesSent);      
+      // console.log(messagesSent);
       setPrayers(
         Array.isArray(prayersRes.data.data.prayers)
           ? prayersRes.data.data.prayers
@@ -239,19 +240,35 @@ const Dashboard = () => {
       }
     }
   };
-useEffect(() => {
-  if (activeTab === "dashboard" || activeTab === "prayer_requests" ) {
-    setTotalPages(Math.ceil(totalPrayers / ITEMS_PER_PAGE));
-  } else if (messageInbox === "inbox" && activeTab !== "dashboard" && totalRecMessages > 0) {
-    setTotalPages(Math.ceil(totalRecMessages / ITEMS_PER_PAGE));
-  } else if (messageInbox === "sent" && activeTab !== "dashboard" && totalSentMessages > 0) {
-    setTotalPages(Math.ceil(totalSentMessages / ITEMS_PER_PAGE));
-  } else if (activeTab === "manage_users") {
-    setTotalPages(Math.ceil(users.length / ITEMS_PER_PAGE));
-  } else if (activeTab === "events") {
-    setTotalPages(Math.ceil(events.length / ITEMS_PER_PAGE));
-  }
-}, [messageInbox, totalRecMessages, totalSentMessages, totalPrayers, activeTab, users.length, events.length]);
+  useEffect(() => {
+    if (activeTab === "dashboard" || activeTab === "prayer_requests") {
+      setTotalPages(Math.ceil(totalPrayers / ITEMS_PER_PAGE));
+    } else if (
+      messageInbox === "inbox" &&
+      activeTab !== "dashboard" &&
+      totalRecMessages > 0
+    ) {
+      setTotalPages(Math.ceil(totalRecMessages / ITEMS_PER_PAGE));
+    } else if (
+      messageInbox === "sent" &&
+      activeTab !== "dashboard" &&
+      totalSentMessages > 0
+    ) {
+      setTotalPages(Math.ceil(totalSentMessages / ITEMS_PER_PAGE));
+    } else if (activeTab === "manage_users") {
+      setTotalPages(Math.ceil(users.length / ITEMS_PER_PAGE));
+    } else if (activeTab === "events") {
+      setTotalPages(Math.ceil(events.length / ITEMS_PER_PAGE));
+    }
+  }, [
+    messageInbox,
+    totalRecMessages,
+    totalSentMessages,
+    totalPrayers,
+    activeTab,
+    users.length,
+    events.length,
+  ]);
   const handlePrayerSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -534,11 +551,11 @@ useEffect(() => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       Status
                     </th>
-                    {/* {(user.role === "admin" || user.role === "coordinator") && ( */}
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Actions
-                    </th>
-                    {/* )} */}
+                    {isSubscribed && (
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Actions
+                      </th>
+                    )}
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -584,39 +601,41 @@ useEffect(() => {
                           {prayer.status}
                         </span>
                       </td>
-                      {/* {(user.role === "admin" ||
-                        user.role === "coordinator") && ( */}
-                      <td
-                        data-label="Actions"
-                        className="px-6 py-4 whitespace-nowrap flex flex-col text-sm"
-                      >
-                        {(user.role === "admin" ||
-                          user.role === "coordinator") &&
-                          prayer.status !== "approved" && (
-                            <button
-                              onClick={() =>
-                                handlePrayerStatusUpdate(prayer.id, "approved")
-                              }
-                              className="px-3 py-1 bg-green-500 text-white text-xs rounded-md"
-                            >
-                              Approve
-                            </button>
-                          )}
+                      {isSubscribed && (
+                        <td
+                          data-label="Actions"
+                          className="px-6 py-4 whitespace-nowrap flex flex-col text-sm"
+                        >
+                          {(user.role === "admin" ||
+                            user.role === "coordinator") &&
+                            prayer.status !== "approved" && (
+                              <button
+                                onClick={() =>
+                                  handlePrayerStatusUpdate(
+                                    prayer.id,
+                                    "approved"
+                                  )
+                                }
+                                className="px-3 py-1 bg-green-500 text-white text-xs rounded-md"
+                              >
+                                Approve
+                              </button>
+                            )}
 
-                        <button
-                          onClick={() => handlePrayerDelete(prayer.id)}
-                          className="px-3 py-1 bg-red-500 text-white text-xs rounded-md"
-                        >
-                          Delete
-                        </button>
-                        <button
-                          onClick={() => handlePrayerEdit(prayer.id)}
-                          className="px-4 py-1 bg-yellow-500 text-xs text-white rounded-md"
-                        >
-                          Edit
-                        </button>
-                      </td>
-                      {/* )} */}
+                          <button
+                            onClick={() => handlePrayerDelete(prayer.id)}
+                            className="px-3 py-1 bg-red-500 text-white text-xs rounded-md"
+                          >
+                            Delete
+                          </button>
+                          <button
+                            onClick={() => handlePrayerEdit(prayer.id)}
+                            className="px-4 py-1 bg-yellow-500 text-xs text-white rounded-md"
+                          >
+                            Edit
+                          </button>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
@@ -628,8 +647,11 @@ useEffect(() => {
         return renderUserManagementSection();
       case "subscription":
         return (
+          
           <div className="bg-white p-8 rounded-3xl h-full mb-4">
-            <h2 className="text-2xl font-bold mb-4 relative z-10">
+            {isSubscribed ? (
+              <>
+                <h2 className="text-2xl font-bold mb-4 relative z-10">
               Premium Plan
             </h2>
             <p className="text-gray-600 mb-6 relative z-10">
@@ -641,25 +663,22 @@ useEffect(() => {
               {/* <p className="text-gray-400">Pause or cancel anytime</p> */}
             </div>
             <>
-              
-                <div className="flex flex-col ">
-                  <button className="bg-[#B4D4D3]/40 text-black max-w-md font-semibold py-3 px-6 rounded-full mb-1 cursor-not-allowed">
-                    Active
-                  </button>
-                  <button
-                    className={`font-semibold py-3 px-6 rounded-full max-w-md mb-8 ${
-                      endsAt !== ""
-                        ? "bg-gray-400 text-white cursor-not-allowed"
-                        : "bg-[#409F9C] text-white cursor-pointer"
-                    }`}
-                    onClick={handleCancelSub}
-                    disabled={endsAt !== ""}
-                  >
-                    {endsAt !== ""
-                      ? `Subscription ends on ${endsAt}`
-                      : "Cancel"}
-                  </button>
-                </div>
+              <div className="flex flex-col ">
+                <button className="bg-[#B4D4D3]/40 text-black max-w-md font-semibold py-3 px-6 rounded-full mb-1 cursor-not-allowed">
+                  Active
+                </button>
+                <button
+                  className={`font-semibold py-3 px-6 rounded-full max-w-md mb-8 ${
+                    endsAt !== ""
+                      ? "bg-gray-400 text-white cursor-not-allowed"
+                      : "bg-[#409F9C] text-white cursor-pointer"
+                  }`}
+                  onClick={handleCancelSub}
+                  disabled={endsAt !== ""}
+                >
+                  {endsAt !== "" ? `Subscription ends on ${endsAt}` : "Cancel"}
+                </button>
+              </div>
             </>
 
             <ul className="space-y-4">
@@ -780,8 +799,80 @@ useEffect(() => {
                 requests and praises.
               </li>
             </ul>
+              </>
+            ) : (
+              <div className="flex items-center justify-center flex-col min-h-[400px] bg-white rounded-lg shadow-md p-8 w-full max-w-2xl mx-auto">
+                <div className="text-center mb-8 px-4 sm:px-0">
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4">
+                    Access Premium Features
+                  </h2>
+                  <p className="text-base sm:text-lg text-gray-600 mb-6">
+                    Subscribe to our premium plan to unlock messaging features
+                    and more
+                  </p>
+                  <ul className="text-left text-gray-600 mb-8 space-y-4">
+                    <li className="flex items-start gap-2">
+                      <svg
+                        className="w-5 h-5 mt-0.5 flex-shrink-0 text-[#409F9C]"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                      <span>Send and receive private messages</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <svg
+                        className="w-5 h-5 mt-0.5 flex-shrink-0 text-[#409F9C]"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                      <span>
+                        Manage your prayer experience by editing or deleting
+                        prayer requests and praises.
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <svg
+                        className="w-5 h-5 mt-0.5 flex-shrink-0 text-[#409F9C]"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                      <span>Access premium content</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="w-full">
+                  <StripeButton className="w-full" />
+                </div>
+              </div>
+            )}
+            
           </div>
-        )
+        );
       case "prayer_requests":
         // setMessageInbox("");
         return (
@@ -918,41 +1009,111 @@ useEffect(() => {
       case "comments":
         return (
           <div className="flex flex-col items-center justify center">
-            <div className="flex flex-row">
-              <button
-                className="px-4 py-1 bg-green-500 text-xs text-white rounded-md"
-                onClick={() => setMessageInbox("inbox")}
-              >
-                Received Messages
-              </button>
-              <button
-                className="px-4 py-1 bg-green-500 text-xs text-white rounded-md"
-                onClick={() => setMessageInbox("sent")}
-              >
-                Sent Messages
-              </button>
-            </div>
-            {(() => {
-              if (messageInbox === "inbox") {
-                return messagesToUser.map((message) => (
-                  <MessageCard
-                    key={message.id}
-                    content={message.content}
-                    userName={message.user_name}
-                    createdAt={message.created_at}
-                  />
-                ));
-              } else if (messageInbox === "sent") {
-                return messagesByUser.map((message) => (
-                  <MessageCard
-                    key={message.id}
-                    content={message.content}
-                    createdAt={message.created_at}
-                  />
-                ));
-              }
-              return null;
-            })()}
+            {isSubscribed ? (
+              <>
+                <div className="flex flex-row">
+                  <button
+                    className="px-4 py-1 bg-green-500 text-xs text-white rounded-md"
+                    onClick={() => setMessageInbox("inbox")}
+                  >
+                    Received Messages
+                  </button>
+                  <button
+                    className="px-4 py-1 bg-green-500 text-xs text-white rounded-md"
+                    onClick={() => setMessageInbox("sent")}
+                  >
+                    Sent Messages
+                  </button>
+                </div>
+                {messageInbox === "inbox"
+                  ? messagesToUser.map((message) => (
+                      <MessageCard
+                        key={message.id}
+                        content={message.content}
+                        userName={message.user_name}
+                        createdAt={message.created_at}
+                      />
+                    ))
+                  : messageInbox === "sent"
+                  ? messagesByUser.map((message) => (
+                      <MessageCard
+                        key={message.id}
+                        content={message.content}
+                        createdAt={message.created_at}
+                      />
+                    ))
+                  : null}
+              </>
+            ) : (
+              <div className="flex items-center justify-center flex-col min-h-[400px] bg-white rounded-lg shadow-md p-8 w-full max-w-2xl mx-auto">
+                <div className="text-center mb-8 px-4 sm:px-0">
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4">
+                    Access Premium Features
+                  </h2>
+                  <p className="text-base sm:text-lg text-gray-600 mb-6">
+                    Subscribe to our premium plan to unlock messaging features
+                    and more
+                  </p>
+                  <ul className="text-left text-gray-600 mb-8 space-y-4">
+                    <li className="flex items-start gap-2">
+                      <svg
+                        className="w-5 h-5 mt-0.5 flex-shrink-0 text-[#409F9C]"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                      <span>Send and receive private messages</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <svg
+                        className="w-5 h-5 mt-0.5 flex-shrink-0 text-[#409F9C]"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                      <span>
+                        Manage your prayer experience by editing or deleting
+                        prayer requests and praises.
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <svg
+                        className="w-5 h-5 mt-0.5 flex-shrink-0 text-[#409F9C]"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                      <span>Access premium content</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="w-full">
+                  <StripeButton className="w-full" />
+                </div>
+              </div>
+            )}
           </div>
         );
 
@@ -1231,32 +1392,32 @@ useEffect(() => {
             >
               Prayer Requests
             </li>
-           )} 
-          {user.role !== 'admin' && (
-            <li
-            className={`mb-2 p-2 rounded cursor-pointer ${
-              activeTab === "comments"
-                ? "bg-[#409F9C] text-white"
-                : "hover:bg-gray-300"
-            }`}
-            onClick={() => handleTabChange("comments")}
-          >
-            Comments and Reactions
-          </li>
           )}
-          {user.role !== 'admin' && (
+          {user.role !== "admin" && (
             <li
-            className={`mb-2 p-2 rounded cursor-pointer ${
-              activeTab === "subscription"
-                ? "bg-[#409F9C] text-white"
-                : "hover:bg-gray-300"
-            }`}
-            onClick={() => handleTabChange("subscription")}
-          >
-            Manage Subscription
-          </li>
+              className={`mb-2 p-2 rounded cursor-pointer ${
+                activeTab === "comments"
+                  ? "bg-[#409F9C] text-white"
+                  : "hover:bg-gray-300"
+              }`}
+              onClick={() => handleTabChange("comments")}
+            >
+              Comments and Reactions
+            </li>
           )}
-          
+          {user.role !== "admin" && (
+            <li
+              className={`mb-2 p-2 rounded cursor-pointer ${
+                activeTab === "subscription"
+                  ? "bg-[#409F9C] text-white"
+                  : "hover:bg-gray-300"
+              }`}
+              onClick={() => handleTabChange("subscription")}
+            >
+              Manage Subscription
+            </li>
+          )}
+
           <li
             className={`mb-2 p-2 rounded cursor-pointer ${
               activeTab === "events"
@@ -1327,54 +1488,54 @@ useEffect(() => {
                 </li>
               )}
               {(user.role === "admin" || user.role === "coordinator") && (
-              <li
-                onClick={() => {
-                  handleTabChange("prayer_requests");
-                  setIsMobileMenuOpen(false);
-                }}
-                className={`p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors
+                <li
+                  onClick={() => {
+                    handleTabChange("prayer_requests");
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={`p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors
                                     ${
                                       activeTab === "prayer_requests"
                                         ? "bg-[#409F9C] text-white hover:bg-[#409F9C]"
                                         : ""
                                     }`}
-              >
-                Prayer Requests
-              </li>
+                >
+                  Prayer Requests
+                </li>
               )}
-              {user.role !== 'admin' && (
+              {user.role !== "admin" && (
                 <li
-                onClick={() => {
-                  handleTabChange("comments");
-                  setIsMobileMenuOpen(false);
-                }}
-                className={`p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors
+                  onClick={() => {
+                    handleTabChange("comments");
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={`p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors
                                     ${
                                       activeTab === "comments"
                                         ? "bg-[#409F9C] text-white hover:bg-[#409F9C]"
                                         : ""
                                     }`}
-              >
-                Comments and Reactions
-              </li>
+                >
+                  Comments and Reactions
+                </li>
               )}
-              {user.role !== 'admin' && (
+              {user.role !== "admin" && (
                 <li
-                onClick={() => {
-                  handleTabChange("subscription");
-                  setIsMobileMenuOpen(false);
-                }}
-                className={`p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors
+                  onClick={() => {
+                    handleTabChange("subscription");
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={`p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors
                                     ${
                                       activeTab === "subscription"
                                         ? "bg-[#409F9C] text-white hover:bg-[#409F9C]"
                                         : ""
                                     }`}
-              >
-                Manage Subscription
-              </li>
+                >
+                  Manage Subscription
+                </li>
               )}
-              
+
               <li
                 onClick={() => {
                   handleTabChange("events");
@@ -1420,7 +1581,7 @@ useEffect(() => {
 
         {/* Dynamic Content based on active tab */}
         {renderContent()}
-        {activeTab !== "subscription" && <PaginationControls />}
+        {activeTab !== "subscription" && !(activeTab === "comments" && !isSubscribed) && <PaginationControls />}
 
         {/* Modals */}
         {showEditForm && (
